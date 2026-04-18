@@ -2,7 +2,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Bell, LogOut, MoreVertical, LayoutDashboard, MapPin, MessageSquareWarning, BarChart3, Megaphone, ClipboardList, Sparkles } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
 import { useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 
 const studentLinks = [
   { to: '/student', icon: LayoutDashboard, label: 'Dashboard' },
