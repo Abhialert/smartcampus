@@ -92,7 +92,7 @@ export default function StudentDashboard() {
           <Link
             key={card.label}
             to={card.link}
-            className="glass-strong rounded-3xl p-7 hover:border-accent/40 transition-all duration-300 group cursor-pointer border-white/5 relative overflow-hidden"
+            className="glass-strong rounded-3xl p-7 hover:border-accent/40 transition-all duration-300 group cursor-pointer border-white/5 relative overflow-hidden active:scale-95"
           >
             <div className={`absolute top-0 right-0 w-24 h-24 ${card.bgColor} blur-3xl -mr-12 -mt-12 transition-all group-hover:scale-150`} />
             <div className="flex items-center justify-between mb-6 relative z-10">

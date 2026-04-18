@@ -68,7 +68,7 @@ export default function Login() {
               <div className="grid grid-cols-2 gap-4">
                 <button
                   onClick={() => setLoginRole('student')}
-                  className="group p-6 rounded-xl border border-glass-border hover:border-accent/40 hover:bg-accent/5 transition-all duration-300 text-center"
+                  className="group p-6 rounded-xl border border-glass-border hover:border-accent/40 hover:bg-accent/5 transition-all duration-300 text-center active:scale-95"
                 >
                   <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-accent/20 to-blue-500/20 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
                     <GraduationCap className="w-7 h-7 text-accent-light" />
@@ -172,7 +172,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full mt-6 py-3 rounded-xl bg-gradient-to-r from-accent to-blue-500 hover:from-accent-glow hover:to-blue-600 text-white font-medium text-sm flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-50"
+                className="w-full mt-6 py-3 rounded-xl bg-gradient-to-r from-accent to-blue-500 hover:from-accent-glow hover:to-blue-600 text-white font-medium text-sm flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-50 active:scale-95"
               >
                 {isLoading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

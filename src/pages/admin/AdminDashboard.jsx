@@ -106,7 +106,7 @@ export default function AdminDashboard() {
           <Link
             key={card.label}
             to={card.link}
-            className="glass rounded-xl p-5 hover:border-accent/20 transition-all duration-300 group"
+            className="glass rounded-xl p-5 hover:border-accent/20 transition-all duration-300 group active:scale-95"
           >
             <div className="flex items-center justify-between mb-3">
               <div className={`w-10 h-10 rounded-xl ${card.bgColor} flex items-center justify-center`}>
