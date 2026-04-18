@@ -110,7 +110,11 @@ export default function Navbar() {
               <div className="max-h-96 overflow-y-auto divide-y divide-glass-border">
                 {unreadAnnouncements.length > 0 ? (
                   unreadAnnouncements.map((notice) => (
-                    <div key={notice.id} className="p-4 hover:bg-accent/5 transition-all">
+                    <div 
+                      key={notice.id} 
+                      onClick={() => markAsSeen(notice.id)}
+                      className="p-4 hover:bg-accent/5 transition-all cursor-pointer group/item"
+                    >
                       <div className="flex gap-3">
                         <div className={`w-8 h-8 rounded-lg shrink-0 flex items-center justify-center mt-0.5 ${
                           notice.priority === 'high' ? 'bg-danger/20 text-danger' : 
@@ -124,8 +128,8 @@ export default function Navbar() {
                           <p className="text-[10px] text-text-muted mt-1 line-clamp-2 leading-relaxed">
                             {notice.content}
                           </p>
-                          <p className="text-[9px] text-text-muted mt-2 flex items-center gap-1">
-                            <Sparkles className="w-2.5 h-2.5" /> Just posted • {notice.priority} priority
+                          <p className="text-[9px] text-text-muted mt-2 flex items-center gap-1 group-hover/item:text-accent-light transition-colors">
+                            <Sparkles className="w-2.5 h-2.5" /> Mark as read • {notice.priority} priority
                           </p>
                         </div>
                       </div>
@@ -143,9 +147,9 @@ export default function Navbar() {
               </div>
               <div className="p-3 bg-surface/30 border-t border-glass-border">
                 <NavLink 
-                  to={role === 'admin' ? '/admin/announcements' : '/student'} 
+                  to={role === 'admin' ? '/admin/announcements' : '/student/announcements'} 
                   onClick={() => setShowNotifications(false)}
-                  className="block w-full text-center py-2 rounded-xl bg-surface/50 text-[10px] font-black uppercase tracking-tighter text-text-secondary hover:text-text-primary hover:bg-surface transition-all"
+                  className="block w-full text-center py-2 rounded-xl bg-surface/50 text-[10px] font-black uppercase tracking-tighter text-text-secondary hover:text-text-primary hover:bg-surface transition-all active:scale-95"
                 >
                   See All Campus Activity
                 </NavLink>

@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import Login from './pages/Login';
 import StudentDashboard from './pages/student/StudentDashboard';
+import StudentAnnouncements from './pages/student/Announcements';
 import CampusLive from './pages/student/CampusLive';
 import ComplaintPortal from './pages/student/ComplaintPortal';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -51,6 +52,11 @@ export default function App() {
       <Route path="/student" element={
         <ProtectedRoute allowedRole="student">
           <AppLayout><StudentDashboard /></AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/student/announcements" element={
+        <ProtectedRoute allowedRole="student">
+          <AppLayout><StudentAnnouncements /></AppLayout>
         </ProtectedRoute>
       } />
       <Route path="/student/campus" element={

@@ -19,12 +19,6 @@ export default function StudentDashboard() {
   const { user } = useAuth();
   const { announcements, crowdData, vacantRooms, complaints, markAsSeen } = useApp();
 
-  // Mark all announcements as seen when dashboard is loaded
-  useEffect(() => {
-    announcements.forEach(notice => {
-      markAsSeen(notice.id);
-    });
-  }, [announcements, markAsSeen]);
 
   const vacantCount = vacantRooms.filter(r => r.isVacant).length;
   const totalRooms = vacantRooms.length;
@@ -56,7 +50,7 @@ export default function StudentDashboard() {
       icon: Megaphone,
       color: 'from-accent-light to-blue-500',
       bgColor: 'bg-accent/20',
-      link: '#notices',
+      link: '/student/announcements',
       desc: 'Recent college updates'
     },
     {
@@ -122,9 +116,12 @@ export default function StudentDashboard() {
                 <p className="text-xs text-text-muted">Stay updated with latest announcements</p>
               </div>
             </div>
-            <button className="px-6 py-2.5 rounded-xl bg-surface/50 text-xs font-bold hover:bg-surface transition-all">
+            <Link 
+              to="/student/announcements"
+              className="px-6 py-2.5 rounded-xl bg-surface/50 text-xs font-bold hover:bg-surface transition-all active:scale-95"
+            >
               View All
-            </button>
+            </Link>
           </div>
           <div className="divide-y divide-glass-border">
             {announcements.map((notice) => (
