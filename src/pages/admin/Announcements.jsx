@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useApp } from '../../contexts/AppContext';
 import {
@@ -15,7 +15,14 @@ import {
 
 export default function Announcements() {
   const { user } = useAuth();
-  const { announcements, addAnnouncement, deleteAnnouncement } = useApp();
+  const { announcements, addAnnouncement, deleteAnnouncement, markAsSeen } = useApp();
+
+  // Mark all announcements as seen when viewed by admin
+  useEffect(() => {
+    announcements.forEach(notice => {
+      markAsSeen(notice.id);
+    });
+  }, [announcements, markAsSeen]);
   const [showForm, setShowForm] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({

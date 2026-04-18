@@ -11,6 +11,10 @@ export function AppProvider({ children }) {
 
   const [crowdData, setCrowdData] = useState(generateCrowdData());
   const [vacantRooms, setVacantRooms] = useState(getVacantClassrooms());
+  const [seenAnnouncements, setSeenAnnouncements] = useState(() => {
+    const saved = localStorage.getItem('smartcampus_seen_notices');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   // Listen to Firestore for changes
   useEffect(() => {
@@ -51,6 +55,20 @@ export function AppProvider({ children }) {
     }, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  const markAsSeen = (id) => {
+    if (!seenAnnouncements.includes(id)) {
+      const updated = [...seenAnnouncements, id];
+      setSeenAnnouncements(updated);
+      localStorage.setItem('smartcampus_seen_notices', JSON.stringify(updated));
+    }
+  };
+
+  const markAllAsSeen = () => {
+    const allIds = announcements.map(a => a.id);
+    setSeenAnnouncements(allIds);
+    localStorage.setItem('smartcampus_seen_notices', JSON.stringify(allIds));
+  };
 
   const refreshCrowdData = () => {
     setCrowdData(generateCrowdData());
@@ -115,6 +133,9 @@ export function AppProvider({ children }) {
       addAnnouncement,
       deleteAnnouncement,
       refreshCrowdData,
+      seenAnnouncements,
+      markAsSeen,
+      markAllAsSeen,
     }}>
       {children}
     </AppContext.Provider>

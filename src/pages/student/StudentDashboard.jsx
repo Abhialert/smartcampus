@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useApp } from '../../contexts/AppContext';
 import {
@@ -16,7 +17,14 @@ import { Link } from 'react-router-dom';
 
 export default function StudentDashboard() {
   const { user } = useAuth();
-  const { announcements, crowdData, vacantRooms, complaints } = useApp();
+  const { announcements, crowdData, vacantRooms, complaints, markAsSeen } = useApp();
+
+  // Mark all announcements as seen when dashboard is loaded
+  useEffect(() => {
+    announcements.forEach(notice => {
+      markAsSeen(notice.id);
+    });
+  }, [announcements, markAsSeen]);
 
   const vacantCount = vacantRooms.filter(r => r.isVacant).length;
   const totalRooms = vacantRooms.length;
