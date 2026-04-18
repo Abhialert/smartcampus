@@ -4,8 +4,11 @@ import { mockStudents, mockAdmins } from '../data/campusData';
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [role, setRole] = useState(null); // 'student' or 'admin'
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('smartcampus_user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+  const [role, setRole] = useState(() => localStorage.getItem('smartcampus_role')); // 'student' or 'admin'
 
   const login = (identifier, password, loginRole) => {
     if (loginRole === 'student') {
@@ -13,6 +16,8 @@ export function AuthProvider({ children }) {
       if (student && student.password === password) {
         setUser(student);
         setRole('student');
+        localStorage.setItem('smartcampus_user', JSON.stringify(student));
+        localStorage.setItem('smartcampus_role', 'student');
         return { success: true };
       }
       // Allow any roll number with default password
@@ -20,6 +25,8 @@ export function AuthProvider({ children }) {
         const newStudent = { roll: identifier, name: `Student ${identifier}`, dept: 'CSE', year: 2, password };
         setUser(newStudent);
         setRole('student');
+        localStorage.setItem('smartcampus_user', JSON.stringify(newStudent));
+        localStorage.setItem('smartcampus_role', 'student');
         return { success: true };
       }
       return { success: false, error: 'Invalid roll number or password' };
@@ -28,6 +35,8 @@ export function AuthProvider({ children }) {
       if (admin && admin.password === password) {
         setUser(admin);
         setRole('admin');
+        localStorage.setItem('smartcampus_user', JSON.stringify(admin));
+        localStorage.setItem('smartcampus_role', 'admin');
         return { success: true };
       }
       // Allow any teacher ID with default password
@@ -35,6 +44,8 @@ export function AuthProvider({ children }) {
         const newAdmin = { id: identifier, name: `Admin ${identifier}`, dept: 'General', role: 'Faculty', password };
         setUser(newAdmin);
         setRole('admin');
+        localStorage.setItem('smartcampus_user', JSON.stringify(newAdmin));
+        localStorage.setItem('smartcampus_role', 'admin');
         return { success: true };
       }
       return { success: false, error: 'Invalid teacher ID or password' };
@@ -44,6 +55,8 @@ export function AuthProvider({ children }) {
   const logout = () => {
     setUser(null);
     setRole(null);
+    localStorage.removeItem('smartcampus_user');
+    localStorage.removeItem('smartcampus_role');
   };
 
   const changePassword = (newPassword) => {
