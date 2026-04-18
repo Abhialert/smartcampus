@@ -27,7 +27,11 @@ export default function StudentAnnouncements() {
       <div className="space-y-6 stagger-children">
         {announcements.length > 0 ? (
           announcements.map((notice) => (
-            <div key={notice.id} className="glass-strong rounded-3xl p-8 border-white/5 shadow-xl hover:border-accent/30 transition-all group">
+            <div 
+              key={notice.id} 
+              id={notice.id}
+              className="glass-strong rounded-3xl p-8 border-white/5 shadow-xl hover:border-accent/30 transition-all group scroll-mt-24"
+            >
               <div className="flex items-center gap-3 mb-4">
                 <span className={`text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-widest ${
                   notice.priority === 'high' ? 'bg-danger/20 text-danger border border-danger/30' :

@@ -24,6 +24,7 @@ export default function Navbar() {
   const [showNav, setShowNav] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const links = role === 'admin' ? adminLinks : studentLinks;
   const unreadAnnouncements = announcements.filter(a => !seenAnnouncements.includes(a.id));
@@ -112,7 +113,11 @@ export default function Navbar() {
                   unreadAnnouncements.map((notice) => (
                     <div 
                       key={notice.id} 
-                      onClick={() => markAsSeen(notice.id)}
+                      onClick={() => {
+                        markAsSeen(notice.id);
+                        setShowNotifications(false);
+                        navigate(role === 'admin' ? '/admin/announcements' : '/student/announcements');
+                      }}
                       className="p-4 hover:bg-accent/5 transition-all cursor-pointer group/item"
                     >
                       <div className="flex gap-3">
