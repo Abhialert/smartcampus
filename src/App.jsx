@@ -36,10 +36,16 @@ function AppLayout({ children }) {
 }
 
 export default function App() {
+  const { isAuthenticated, role } = useAuth();
+
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="/" element={
+        isAuthenticated 
+          ? <Navigate to={`/${role}`} replace /> 
+          : <Navigate to="/login" replace />
+      } />
 
       {/* Student Routes */}
       <Route path="/student" element={

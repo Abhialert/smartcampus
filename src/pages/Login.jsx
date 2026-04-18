@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { GraduationCap, Shield, Eye, EyeOff, ArrowRight, Sparkles } from 'lucide-react';
@@ -10,8 +10,15 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, isAuthenticated, role } = useAuth();
   const navigate = useNavigate();
+
+  // If already authenticated, redirect to dashboard
+  useEffect(() => {
+    if (isAuthenticated && role) {
+      navigate(role === 'student' ? '/student' : '/admin', { replace: true });
+    }
+  }, [isAuthenticated, role, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
