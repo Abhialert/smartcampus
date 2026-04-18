@@ -18,6 +18,7 @@ export default function ComplaintManagement() {
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [remarks, setRemarks] = useState('');
   const [newStatus, setNewStatus] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const filteredComplaints = filter === 'all'
     ? complaints
@@ -40,6 +41,8 @@ export default function ComplaintManagement() {
       setSelectedComplaint(null);
       setRemarks('');
       setNewStatus('');
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
     }
   };
 
@@ -60,6 +63,12 @@ export default function ComplaintManagement() {
         </h1>
         <p className="text-text-muted text-sm mt-1">Review and manage student complaints</p>
       </div>
+      {showSuccess && (
+        <div className="flex items-center gap-2 px-4 py-2 bg-success/15 border border-success/30 rounded-xl text-success animate-fade-in w-fit">
+          <CheckCircle2 className="w-4 h-4" />
+          <span className="text-xs font-bold">Update Successful!</span>
+        </div>
+      )}
 
       {/* Status Filters */}
       <div className="flex gap-2 flex-wrap animate-fade-in">
@@ -67,7 +76,7 @@ export default function ComplaintManagement() {
           <button
             key={btn.key}
             onClick={() => setFilter(btn.key)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all active:scale-95 ${
               filter === btn.key
                 ? 'bg-accent/15 text-accent-light border border-accent/30'
                 : 'glass hover:bg-surface-light/50 text-text-secondary border border-transparent'
@@ -135,7 +144,7 @@ export default function ComplaintManagement() {
                     <td className="p-4">
                       <button
                         onClick={() => { setSelectedComplaint(c); setNewStatus(c.status); setRemarks(c.remarks || ''); }}
-                        className="text-xs text-accent-light hover:text-accent transition-colors px-3 py-1.5 rounded-lg hover:bg-accent/10"
+                        className="text-xs text-accent-light hover:text-accent transition-colors px-3 py-1.5 rounded-lg hover:bg-accent/10 active:scale-95"
                       >
                         Manage
                       </button>
@@ -221,7 +230,7 @@ export default function ComplaintManagement() {
               </button>
               <button
                 onClick={handleStatusUpdate}
-                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-accent to-blue-500 text-white text-sm font-medium transition-all"
+                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-accent to-blue-500 text-white text-sm font-medium transition-all active:scale-95"
               >
                 Update Status
               </button>

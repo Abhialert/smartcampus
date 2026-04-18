@@ -81,7 +81,7 @@ export default function ComplaintPortal() {
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-accent to-blue-500 hover:from-accent-glow hover:to-blue-600 text-white text-sm font-medium flex items-center gap-2 transition-all"
+          className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-accent to-blue-500 hover:from-accent-glow hover:to-blue-600 text-white text-sm font-medium flex items-center gap-2 transition-all active:scale-95"
         >
           <Send className="w-4 h-4" /> File Complaint
         </button>
@@ -260,7 +260,7 @@ export default function ComplaintPortal() {
                   <button
                     type="submit"
                     disabled={!form.category || !form.title || !form.description}
-                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-accent to-blue-500 text-white text-sm font-medium disabled:opacity-30 transition-all flex items-center justify-center gap-2"
+                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-accent to-blue-500 text-white text-sm font-medium disabled:opacity-30 transition-all active:scale-95 flex items-center justify-center gap-2"
                   >
                     <Send className="w-4 h-4" /> Submit
                   </button>
