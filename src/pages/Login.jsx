@@ -79,7 +79,7 @@ export default function Login() {
 
                 <button
                   onClick={() => setLoginRole('admin')}
-                  className="group p-6 rounded-xl border border-glass-border hover:border-blue-400/40 hover:bg-blue-500/5 transition-all duration-300 text-center"
+                  className="group p-6 rounded-xl border border-glass-border hover:border-blue-400/40 hover:bg-blue-500/5 transition-all duration-300 text-center active:scale-95"
                 >
                   <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
                     <Shield className="w-7 h-7 text-blue-400" />
