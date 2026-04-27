@@ -9,275 +9,130 @@ export default function CampusLive() {
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);
   const [selectedZone, setSelectedZone] = useState(null);
-  const [viewMode, setViewMode] = useState('crowd'); // 'crowd' or 'rooms'
-  const [lastRefresh, setLastRefresh] = useState(new Date());
+  const [viewMode, setViewMode] = useState('crowd');
 
   const handleRefresh = () => {
     refreshCrowdData();
-    setLastRefresh(new Date());
-    // Update markers
-    if (mapInstanceRef.current) {
-      updateMarkers();
-    }
+    if (mapInstanceRef.current) updateMarkers();
   };
 
   const getStatusColor = (status) => {
-    switch (status) {
-      case 'crowded': return '#ef4444';
-      case 'moderate': return '#f59e0b';
-      case 'empty': return '#22c55e';
-      default: return '#64748b';
-    }
-  };
-
-  const getStatusBg = (status) => {
-    switch (status) {
-      case 'crowded': return 'bg-danger/15 text-danger';
-      case 'moderate': return 'bg-warning/15 text-warning';
-      case 'empty': return 'bg-success/15 text-success';
-      default: return 'bg-surface-light text-text-muted';
-    }
+    switch (status) { case 'crowded': return '#ef4444'; case 'moderate': return '#f59e0b'; case 'empty': return '#22c55e'; default: return '#64748b'; }
   };
 
   const updateMarkers = () => {
-    if (!mapInstanceRef.current) return;
+    if (!mapInstanceRef.current || !window.L) return;
     const L = window.L;
-
-    // Clear existing markers
     markersRef.current.forEach(m => m.remove());
     markersRef.current = [];
 
     crowdData.forEach(zone => {
       const color = getStatusColor(zone.status);
-      const radius = zone.type === 'outdoor' ? 35 : 25;
-
-      // Circle for crowd density
-      const circle = L.circleMarker(zone.coords, {
-        radius: radius,
-        fillColor: color,
-        fillOpacity: 0.25,
-        color: color,
-        weight: 2,
-        opacity: 0.6,
-      }).addTo(mapInstanceRef.current);
-
-      // Popup
-      circle.bindPopup(`
-        <div style="min-width: 160px;">
-          <h4 style="font-weight: 600; margin-bottom: 4px; font-size: 14px;">${zone.name}</h4>
-          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${color};"></span>
-            <span style="font-size: 12px; text-transform: capitalize;">${zone.status}</span>
-          </div>
-          <p style="font-size: 12px; color: #94a3b8;">~${zone.crowd} people detected</p>
-          ${zone.capacity ? `<p style="font-size: 11px; color: #64748b; margin-top: 2px;">Capacity: ${zone.capacity}</p>` : ''}
-        </div>
-      `);
-
-      // Center label
-      const label = L.divIcon({
-        html: `<div style="background:${color};color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);">${zone.crowd}</div>`,
-        className: '',
-        iconSize: [30, 18],
-        iconAnchor: [15, 9],
-      });
+      const circle = L.circleMarker(zone.coords, { radius: zone.type === 'outdoor' ? 35 : 25, fillColor: color, fillOpacity: 0.25, color, weight: 2, opacity: 0.6 }).addTo(mapInstanceRef.current);
+      circle.bindPopup(`<div style="min-width:160px;"><h4 style="font-weight:700;margin-bottom:4px;font-size:14px;color:#1a1a2e;">${zone.name}</h4><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${color};"></span><span style="font-size:12px;text-transform:capitalize;color:#475569;">${zone.status}</span></div><p style="font-size:12px;color:#94a3b8;">~${zone.crowd} people</p></div>`);
+      const label = L.divIcon({ html: `<div style="background:${color};color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.2);">${zone.crowd}</div>`, className: '', iconSize: [30, 18], iconAnchor: [15, 9] });
       const marker = L.marker(zone.coords, { icon: label }).addTo(mapInstanceRef.current);
-
       markersRef.current.push(circle, marker);
     });
   };
 
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
-
     const initMap = async () => {
       const L = await import('leaflet');
       await import('leaflet/dist/leaflet.css');
       window.L = L;
-
-      const map = L.map(mapRef.current, {
-        center: CAMPUS_CENTER,
-        zoom: CAMPUS_ZOOM,
-        zoomControl: true,
-        attributionControl: false,
-      });
-
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        maxZoom: 20,
-      }).addTo(map);
-
+      const map = L.map(mapRef.current, { center: CAMPUS_CENTER, zoom: CAMPUS_ZOOM, zoomControl: true, attributionControl: false });
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(map);
       mapInstanceRef.current = map;
       updateMarkers();
     };
-
     initMap();
-
-    return () => {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-      }
-    };
+    return () => { if (mapInstanceRef.current) { mapInstanceRef.current.remove(); mapInstanceRef.current = null; } };
   }, []);
 
-  useEffect(() => {
-    updateMarkers();
-  }, [crowdData]);
+  useEffect(() => { updateMarkers(); }, [crowdData]);
 
   const vacantCount = vacantRooms.filter(r => r.isVacant).length;
   const crowdedCount = crowdData.filter(z => z.status === 'crowded').length;
   const totalPeople = crowdData.reduce((sum, z) => sum + z.crowd, 0);
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto pb-12">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 animate-fade-in">
+    <div className="space-y-7 max-w-7xl mx-auto pb-12">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 animate-fade-in">
         <div>
-          <h1 className="text-3xl font-black flex items-center gap-3">
-            <div className="w-4 h-4 bg-success rounded-full animate-pulse shadow-[0_0_15px_rgba(34,197,94,0.6)]" />
-            Campus Live Monitor
+          <h1 className="text-3xl font-black flex items-center gap-3 text-gray-900">
+            <div className="w-4 h-4 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]" />Campus Live
           </h1>
-          <p className="text-text-secondary text-base font-bold mt-2">Real-time GPS crowd density & room occupancy</p>
+          <p className="text-gray-500 text-sm font-medium mt-2">Real-time crowd density & room occupancy</p>
         </div>
-        <button
-          onClick={handleRefresh}
-          className="flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-accent text-white font-black text-sm hover:bg-accent-glow transition-all shadow-xl active:scale-95"
-        >
-          <RefreshCw className="w-5 h-5" />
-          Refresh Live Data
+        <button onClick={handleRefresh} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-red-500 text-white font-bold text-sm hover:bg-red-600 transition-all shadow-md active:scale-95">
+          <RefreshCw className="w-4 h-4" />Refresh
         </button>
       </div>
 
-      {/* Stats Bar - Larger & Denser */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 stagger-children">
-        <div className="glass-strong rounded-3xl p-6 flex items-center gap-6 border-white/5 shadow-2xl">
-          <div className="w-16 h-16 rounded-2xl bg-accent/20 flex items-center justify-center">
-            <Users className="w-8 h-8 text-accent-light" />
-          </div>
-          <div>
-            <p className="text-3xl font-black tracking-tight">{totalPeople}</p>
-            <p className="text-xs font-bold text-text-muted uppercase tracking-widest mt-1">Total On Campus</p>
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 stagger-children">
+        <div className="bg-white rounded-2xl p-6 flex items-center gap-5 border border-gray-100 shadow-sm">
+          <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center"><Users className="w-7 h-7 text-blue-500" /></div>
+          <div><p className="text-3xl font-black text-gray-900">{totalPeople}</p><p className="text-xs text-gray-400 font-bold uppercase mt-1">Total On Campus</p></div>
         </div>
-        <div className="glass-strong rounded-3xl p-6 flex items-center gap-6 border-white/5 shadow-2xl text-danger">
-          <div className="w-16 h-16 rounded-2xl bg-danger/20 flex items-center justify-center">
-            <MapPin className="w-8 h-8 text-danger" />
-          </div>
-          <div>
-            <p className="text-3xl font-black tracking-tight">{crowdedCount}</p>
-            <p className="text-xs font-bold text-text-muted uppercase tracking-widest mt-1">Crowded Zones</p>
-          </div>
+        <div className="bg-white rounded-2xl p-6 flex items-center gap-5 border border-gray-100 shadow-sm">
+          <div className="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center"><MapPin className="w-7 h-7 text-red-500" /></div>
+          <div><p className="text-3xl font-black text-gray-900">{crowdedCount}</p><p className="text-xs text-gray-400 font-bold uppercase mt-1">Crowded Zones</p></div>
         </div>
-        <div className="glass-strong rounded-3xl p-6 flex items-center gap-6 border-white/5 shadow-2xl text-success">
-          <div className="w-16 h-16 rounded-2xl bg-success/20 flex items-center justify-center">
-            <DoorOpen className="w-8 h-8 text-success" />
-          </div>
-          <div>
-            <p className="text-3xl font-black tracking-tight">{vacantCount}</p>
-            <p className="text-xs font-bold text-text-muted uppercase tracking-widest mt-1">Vacant Hubs</p>
-          </div>
+        <div className="bg-white rounded-2xl p-6 flex items-center gap-5 border border-gray-100 shadow-sm">
+          <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center"><DoorOpen className="w-7 h-7 text-emerald-500" /></div>
+          <div><p className="text-3xl font-black text-gray-900">{vacantCount}</p><p className="text-xs text-gray-400 font-bold uppercase mt-1">Vacant Rooms</p></div>
         </div>
       </div>
 
-      {/* Map + Sidebar */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Map */}
-        <div className="lg:col-span-3 glass-strong rounded-3xl overflow-hidden animate-fade-in border-white/5 shadow-2xl h-[600px] flex flex-col">
-          <div className="p-6 border-b border-glass-border flex items-center justify-between bg-white/5">
-            <h2 className="text-lg font-black flex items-center gap-3">
-              <Eye className="w-5 h-5 text-accent-light" />
-              Interactive Campus Heatmap
-            </h2>
-            <div className="hidden md:flex items-center gap-4 text-[10px] font-black uppercase tracking-widest">
-              <span className="flex items-center gap-2 bg-success/10 px-3 py-1.5 rounded-full border border-success/20"><span className="w-2.5 h-2.5 rounded-full bg-success"></span> Safe</span>
-              <span className="flex items-center gap-2 bg-warning/10 px-3 py-1.5 rounded-full border border-warning/20"><span className="w-2.5 h-2.5 rounded-full bg-warning"></span> Moderate</span>
-              <span className="flex items-center gap-2 bg-danger/10 px-3 py-1.5 rounded-full border border-danger/20"><span className="w-2.5 h-2.5 rounded-full bg-danger"></span> Peak</span>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="lg:col-span-3 bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm h-[550px] flex flex-col">
+          <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+            <h2 className="text-base font-bold text-gray-700 flex items-center gap-2"><Eye className="w-4 h-4 text-red-400" />Heatmap — Techno Main Saltlake</h2>
+            <div className="hidden md:flex items-center gap-3 text-[10px] font-bold uppercase">
+              <span className="flex items-center gap-1.5 bg-green-50 px-2.5 py-1 rounded-full border border-green-100"><span className="w-2 h-2 rounded-full bg-green-500"></span>Safe</span>
+              <span className="flex items-center gap-1.5 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-100"><span className="w-2 h-2 rounded-full bg-amber-500"></span>Moderate</span>
+              <span className="flex items-center gap-1.5 bg-red-50 px-2.5 py-1 rounded-full border border-red-100"><span className="w-2 h-2 rounded-full bg-red-500"></span>Peak</span>
             </div>
           </div>
-          <div ref={mapRef} className="flex-1 w-full bg-surface" />
-          <div className="p-4 border-t border-glass-border text-xs font-bold text-text-muted text-center tracking-wide">
-            Techno Main Saltlake • High Precision GPS Detection Active • Updates every 30s
-          </div>
+          <div ref={mapRef} className="flex-1 w-full bg-gray-50" />
+          <div className="p-3 border-t border-gray-100 text-xs font-bold text-gray-400 text-center">Techno Main Saltlake • GPS Active • 30s refresh</div>
         </div>
 
-        {/* Zone List - Tighter Sidebar */}
-        <div className="glass-strong rounded-3xl overflow-hidden animate-fade-in border-white/5 shadow-2xl flex flex-col h-[600px]">
-          <div className="p-6 border-b border-glass-border bg-white/5">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-base font-black tracking-widest uppercase">Zone Radar</h2>
-              <Filter className="w-5 h-5 text-text-muted" />
-            </div>
-            {/* Tabs - Larger */}
-            <div className="flex gap-2 p-1.5 bg-surface/80 rounded-2xl border border-white/5">
-              <button
-                onClick={() => setViewMode('crowd')}
-                className={`flex-1 text-sm font-black py-3 rounded-xl transition-all ${viewMode === 'crowd' ? 'bg-accent text-white shadow-lg shadow-accent/20' : 'text-text-muted hover:text-text-primary'}`}
-              >
-                Crowd
-              </button>
-              <button
-                onClick={() => setViewMode('rooms')}
-                className={`flex-1 text-sm font-black py-3 rounded-xl transition-all ${viewMode === 'rooms' ? 'bg-accent text-white shadow-lg shadow-accent/20' : 'text-text-muted hover:text-text-primary'}`}
-              >
-                Rooms
-              </button>
+        <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm flex flex-col h-[550px]">
+          <div className="p-5 border-b border-gray-100">
+            <h2 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4">Zone Radar</h2>
+            <div className="flex gap-1.5 p-1 bg-gray-100 rounded-xl">
+              <button onClick={() => setViewMode('crowd')} className={`flex-1 text-xs font-bold py-2 rounded-lg transition-all ${viewMode==='crowd'?'bg-red-500 text-white shadow':'text-gray-500 hover:text-gray-700'}`}>Crowd</button>
+              <button onClick={() => setViewMode('rooms')} className={`flex-1 text-xs font-bold py-2 rounded-lg transition-all ${viewMode==='rooms'?'bg-red-500 text-white shadow':'text-gray-500 hover:text-gray-700'}`}>Rooms</button>
             </div>
           </div>
-
-          <div className="overflow-y-auto flex-1 custom-scrollbar">
+          <div className="overflow-y-auto flex-1">
             {viewMode === 'crowd' ? (
-              <div className="divide-y divide-glass-border">
-                {crowdData.sort((a,b) => b.crowd - a.crowd).map((zone) => (
-                  <button
-                    key={zone.id}
-                    onClick={() => {
-                      setSelectedZone(zone);
-                      if (mapInstanceRef.current) {
-                        mapInstanceRef.current.flyTo(zone.coords, 20);
-                      }
-                    }}
-                    className={`w-full text-left p-6 hover:bg-white/5 transition-all group ${selectedZone?.id === zone.id ? 'bg-accent/10 border-l-4 border-accent' : ''}`}
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <p className="text-base font-black leading-none">{zone.name}</p>
-                        <p className="text-[10px] text-text-muted font-bold uppercase mt-2 tracking-tighter">{zone.type} • {zone.status}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-2xl font-black leading-none">{zone.crowd}</p>
-                      </div>
+              <div className="divide-y divide-gray-50">
+                {[...crowdData].sort((a,b)=>b.crowd-a.crowd).map(zone => (
+                  <button key={zone.id} onClick={() => { setSelectedZone(zone); if(mapInstanceRef.current) mapInstanceRef.current.flyTo(zone.coords, 19); }}
+                    className={`w-full text-left p-4 hover:bg-gray-50 transition-all ${selectedZone?.id===zone.id?'bg-red-50 border-l-3 border-red-500':''}`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm font-bold text-gray-800 leading-none">{zone.name}</p>
+                      <p className="text-lg font-black text-gray-800">{zone.crowd}</p>
                     </div>
-                    {/* Crowd bar - Thicker */}
-                    <div className="h-2.5 bg-surface/50 rounded-full overflow-hidden border border-white/5">
-                      <div
-                        className="h-full rounded-full transition-all duration-700"
-                        style={{
-                          width: `${Math.min((zone.crowd / 50) * 100, 100)}%`,
-                          backgroundColor: getStatusColor(zone.status),
-                        }}
-                      />
+                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full transition-all duration-700" style={{ width: `${Math.min((zone.crowd/50)*100,100)}%`, backgroundColor: getStatusColor(zone.status) }} />
                     </div>
                   </button>
                 ))}
               </div>
             ) : (
-              <div className="divide-y divide-glass-border">
+              <div className="divide-y divide-gray-50">
                 {vacantRooms.map((room, idx) => (
-                  <div key={idx} className="p-5 flex items-center justify-between group hover:bg-white/5 transition-all">
-                    <div className="flex items-center gap-4">
-                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${room.isVacant ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'}`}>
-                         <DoorOpen className="w-5 h-5" />
-                       </div>
-                       <div>
-                        <p className="text-base font-black leading-none">{room.room}</p>
-                        <p className="text-[10px] text-text-muted font-bold uppercase mt-1">{room.building}</p>
-                      </div>
+                  <div key={idx} className="p-4 flex items-center justify-between hover:bg-gray-50">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${room.isVacant?'bg-green-50 text-green-500':'bg-red-50 text-red-500'}`}><DoorOpen className="w-4 h-4" /></div>
+                      <div><p className="text-sm font-bold text-gray-800">{room.room}</p><p className="text-[10px] text-gray-400">{room.building}</p></div>
                     </div>
-                    <div className="text-right">
-                      <span className={`text-[10px] px-3 py-1.5 rounded-full font-black uppercase tracking-widest ${room.isVacant ? 'bg-success/20 text-success border border-success/30' : 'bg-danger/20 text-danger border border-danger/30'}`}>
-                        {room.isVacant ? 'Free' : 'Busy'}
-                      </span>
-                    </div>
+                    <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold ${room.isVacant?'bg-green-50 text-green-600 border border-green-100':'bg-red-50 text-red-500 border border-red-100'}`}>{room.isVacant?'Free':'Busy'}</span>
                   </div>
                 ))}
               </div>
