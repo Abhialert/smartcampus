@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Bot, User, Minimize2 } from 'lucide-react';
+import { MessageCircle, X, Send, Bot, User, Minimize2, Zap } from 'lucide-react';
 import { getChatResponse } from '../data/chatResponses';
 import { useApp } from '../contexts/AppContext';
 import { useAuth } from '../contexts/AuthContext';
 import { subjectCodes } from '../data/campusData';
+import { campusClubs, campusEvents } from '../data/clubsData';
+import { internships, skillsByDept } from '../data/careerData';
 
 export default function ChatBot() {
   const { crowdData, vacantRooms, announcements, assignments, attendanceRecords } = useApp();
@@ -14,7 +16,7 @@ export default function ChatBot() {
   const firstName = user?.name?.split(' ')[0] || 'there';
 
   const [messages, setMessages] = useState([
-    { id: 1, type: 'bot', text: `Hey ${firstName}! 🎓 I'm your SmartCampus assistant. I know about your classes, attendance, assignments, and campus. Ask me anything!`, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) },
+    { id: 1, type: 'bot', text: `Hey ${firstName}! 🎓 I'm your SmartCampus assistant. I know about your classes, attendance, assignments, clubs, events, career & skills. Ask me anything!`, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) },
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -22,9 +24,173 @@ export default function ChatBot() {
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
-  // Personalized response generator
+  // Helper data
+  const joinedClubs = JSON.parse(localStorage.getItem('smartcampus_joined_clubs') || '[]');
+  const eventRsvps = JSON.parse(localStorage.getItem('smartcampus_event_rsvps') || '[]');
+  const skillRatings = JSON.parse(localStorage.getItem('smartcampus_skill_ratings') || '{}');
+
+  // Karma auto-calculation
+  const getKarma = () => {
+    let karma = 0;
+    const myAtt = attendanceRecords.filter(r => r.records?.some(s => s.roll === user?.roll));
+    const total = myAtt.length;
+    const present = myAtt.filter(r => r.records?.find(s => s.roll === user?.roll)?.present).length;
+    const attPct = total > 0 ? (present / total) * 100 : 0;
+    karma += Math.round(attPct * 0.5); // up to 50
+    karma += joinedClubs.length * 10;
+    karma += eventRsvps.length * 8;
+    karma += Object.keys(skillRatings).length * 3;
+    return karma;
+  };
+
   const getPersonalizedResponse = (msg) => {
     const lower = msg.toLowerCase();
+
+    // ===== DAILY BRIEFING =====
+    if (lower.includes('briefing') || lower.includes('today') || lower.includes('daily') || lower.includes('morning') || lower.includes('summary')) {
+      let resp = `☀️ **Good ${new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 17 ? 'Afternoon' : 'Evening'}, ${firstName}!**\n\nHere's your daily briefing:\n`;
+
+      // Attendance
+      const myAtt = attendanceRecords.filter(r => r.records?.some(s => s.roll === user?.roll));
+      const total = myAtt.length;
+      const present = myAtt.filter(r => r.records?.find(s => s.roll === user?.roll)?.present).length;
+      const pct = total > 0 ? Math.round((present / total) * 100) : 0;
+      resp += `\n📊 **Attendance:** ${pct}% (${present}/${total})`;
+      if (pct < 75 && total > 0) resp += ` ⚠️ Below 75%!`;
+
+      // Pending assignments
+      const myAssign = assignments.filter(a => {
+        const r = (user?.roll || '').toLowerCase();
+        return r >= (a.rollFrom || '').toLowerCase() && r <= (a.rollTo || 'zzz').toLowerCase();
+      });
+      const pending = myAssign.filter(a => new Date(a.dueDate) > new Date());
+      resp += `\n📝 **Assignments:** ${pending.length} pending`;
+      if (pending.length > 0) {
+        const urgent = pending.filter(a => Math.ceil((new Date(a.dueDate) - new Date()) / (864e5)) <= 3);
+        if (urgent.length > 0) resp += ` (${urgent.length} due in ≤3 days! 🔴)`;
+      }
+
+      // Today's events
+      const today = new Date().toISOString().split('T')[0];
+      const todayEvents = campusEvents.filter(e => e.date === today);
+      const upcomingEvents = campusEvents.filter(e => {
+        const d = Math.ceil((new Date(e.date) - new Date()) / (864e5));
+        return d >= 0 && d <= 7;
+      });
+      resp += `\n🎪 **Events:** ${todayEvents.length > 0 ? todayEvents.map(e => e.title).join(', ') + ' TODAY!' : upcomingEvents.length + ' this week'}`;
+
+      // Campus status
+      const lib = crowdData.find(z => z.id === 'library');
+      const can = crowdData.find(z => z.id === 'canteen');
+      resp += `\n🏫 **Campus:** Library ${lib?.status || '?'} (${lib?.crowd || 0}), Canteen ${can?.status || '?'} (${can?.crowd || 0})`;
+
+      // Karma
+      resp += `\n🏆 **Karma:** ${getKarma()} points`;
+
+      // Announcements
+      if (announcements.length > 0) resp += `\n📢 **Latest notice:** "${announcements[0].title}"`;
+
+      return resp;
+    }
+
+    // ===== DEADLINES =====
+    if (lower.includes('deadline') || lower.includes('due') || lower.includes('pending') || lower.includes('this week')) {
+      const myAssign = assignments.filter(a => {
+        const r = (user?.roll || '').toLowerCase();
+        return r >= (a.rollFrom || '').toLowerCase() && r <= (a.rollTo || 'zzz').toLowerCase();
+      });
+      const pending = myAssign.filter(a => new Date(a.dueDate) > new Date()).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+      if (pending.length === 0) return `🎉 No pending deadlines, ${firstName}! Enjoy your free time.`;
+      let resp = `⏰ **Your Deadlines:**\n`;
+      pending.slice(0, 5).forEach(a => {
+        const days = Math.ceil((new Date(a.dueDate) - new Date()) / (864e5));
+        const urgency = days <= 2 ? '🔴' : days <= 5 ? '🟡' : '🟢';
+        resp += `\n${urgency} **${a.title}** — ${days} day${days !== 1 ? 's' : ''} left`;
+      });
+      return resp;
+    }
+
+    // ===== ATTENDANCE RISK PREDICTOR =====
+    if (lower.includes('risk') || lower.includes('predict') || lower.includes('what if') || lower.includes('miss')) {
+      const myAtt = attendanceRecords.filter(r => r.records?.some(s => s.roll === user?.roll));
+      const total = myAtt.length;
+      const present = myAtt.filter(r => r.records?.find(s => s.roll === user?.roll)?.present).length;
+      if (total === 0) return `No attendance data yet, ${firstName}. Check back after your teacher marks attendance.`;
+      const pct = Math.round((present / total) * 100);
+      let resp = `📊 **Attendance Risk Analysis:**\nCurrent: **${pct}%** (${present}/${total})\n`;
+      for (let miss = 1; miss <= 5; miss++) {
+        const newPct = Math.round((present / (total + miss)) * 100);
+        const flag = newPct < 75 ? ' ❌ SHORTAGE' : ' ✅';
+        resp += `\nMiss ${miss} more → **${newPct}%**${flag}`;
+      }
+      if (pct < 75) resp += `\n\n⚠️ You're already below 75%! Attend every class.`;
+      return resp;
+    }
+
+    // ===== KARMA =====
+    if (lower.includes('karma') || lower.includes('score') || lower.includes('points') || lower.includes('reputation')) {
+      const karma = getKarma();
+      const level = karma >= 100 ? '🏆 Gold' : karma >= 50 ? '🥈 Silver' : '🥉 Bronze';
+      return `🏆 **Campus Karma: ${karma} points** (${level})\n\n• Attendance contribution: ~${Math.round(karma * 0.4)} pts\n• ${joinedClubs.length} clubs joined: +${joinedClubs.length * 10} pts\n• ${eventRsvps.length} events RSVP'd: +${eventRsvps.length * 8} pts\n• ${Object.keys(skillRatings).length} skills rated: +${Object.keys(skillRatings).length * 3} pts\n\n💡 Join more clubs & events to boost your karma!`;
+    }
+
+    // ===== CLUBS =====
+    if (lower.includes('club') || lower.includes('society') || lower.includes('community')) {
+      if (lower.includes('my') || lower.includes('joined')) {
+        if (joinedClubs.length === 0) return `You haven't joined any clubs yet! Go to **Clubs** from the menu to discover ${campusClubs.length} clubs. 🏛️`;
+        const names = campusClubs.filter(c => joinedClubs.includes(c.id)).map(c => `${c.emoji} ${c.name}`);
+        return `⭐ **Your Clubs (${names.length}):**\n\n${names.map(n => `• ${n}`).join('\n')}\n\nCheck the Clubs page for upcoming events from your clubs!`;
+      }
+      return `🏛️ TMSL has **${campusClubs.length} active clubs** across Tech, Cultural, Sports, Literary & Social categories.\n\nPopular: ${campusClubs.slice(0, 4).map(c => c.emoji + ' ' + c.shortName).join(', ')}\n\nGo to **Menu → Clubs** to browse & join with one tap!`;
+    }
+
+    // ===== EVENTS =====
+    if (lower.includes('event') || lower.includes('hackathon') || lower.includes('fest') || lower.includes('workshop')) {
+      const upcoming = campusEvents.filter(e => new Date(e.date) >= new Date()).sort((a, b) => new Date(a.date) - new Date(b.date));
+      if (upcoming.length === 0) return `No upcoming events right now. Check back later! 🎪`;
+      let resp = `🎪 **Upcoming Events (${upcoming.length}):**\n`;
+      upcoming.slice(0, 4).forEach(e => {
+        const club = campusClubs.find(c => c.id === e.club);
+        const days = Math.ceil((new Date(e.date) - new Date()) / (864e5));
+        resp += `\n• **${e.title}** — ${days}d away (${e.type === 'inter' ? '🌐 Inter' : '🏠 Intra'}) by ${club?.shortName || '?'}`;
+      });
+      resp += `\n\nGo to **Menu → Events** to RSVP! 🎟️`;
+      return resp;
+    }
+
+    // ===== INTERNSHIPS =====
+    if (lower.includes('internship') || lower.includes('job') || lower.includes('placement') || lower.includes('career')) {
+      const myInterns = internships.filter(i => i.depts.includes(user?.dept || 'CSE'));
+      let resp = `🚀 **${myInterns.length} internships** available for ${user?.dept || 'CSE'}:\n`;
+      myInterns.slice(0, 4).forEach(i => {
+        resp += `\n• **${i.title}** at ${i.company} — ${i.stipend} (${i.location})`;
+      });
+      resp += `\n\nGo to **Menu → Career Hub** for full list, auto-resume builder & placement prep!`;
+      return resp;
+    }
+
+    // ===== SKILLS =====
+    if (lower.includes('skill') || lower.includes('progress') || lower.includes('radar')) {
+      const skills = skillsByDept[user?.dept || 'CSE'] || [];
+      const rated = Object.keys(skillRatings).length;
+      if (rated === 0) return `You haven't rated your skills yet! Go to **Menu → Skill Radar** — just slide to rate, zero typing. 🎯`;
+      const avg = (Object.values(skillRatings).reduce((a, b) => a + b, 0) / rated).toFixed(1);
+      const top = skills.filter(s => (skillRatings[s.id] || 0) >= 7).map(s => s.name);
+      let resp = `🎯 **Skill Summary:**\n• ${rated}/${skills.length} skills rated\n• Average: ${avg}/10\n`;
+      if (top.length > 0) resp += `\n💪 **Strengths:** ${top.join(', ')}`;
+      resp += `\n\nGo to **Skill Radar** to update your ratings!`;
+      return resp;
+    }
+
+    // ===== RESUME =====
+    if (lower.includes('resume') || lower.includes('cv')) {
+      return `📝 Your **Smart Resume** is auto-generated from your SmartCampus data:\n• Profile: ${user?.name}, ${user?.dept} Year ${user?.year}\n• ${joinedClubs.length} clubs, ${eventRsvps.length} events, ${Object.keys(skillRatings).length} skills rated\n\nGo to **Career Hub → Smart Resume** to preview & download. Zero typing needed! 🪄`;
+    }
+
+    // ===== POLLS (just info) =====
+    if (lower.includes('poll') || lower.includes('vote') || lower.includes('opinion')) {
+      return `🗳️ **Campus Polls** are on your dashboard! Quick 1-tap votes on canteen, events & more. Check the dashboard to vote. Your voice matters! 🎤`;
+    }
 
     // Student-specific: attendance
     if (role === 'student' && (lower.includes('attendance') || lower.includes('present') || lower.includes('absent'))) {
@@ -37,7 +203,7 @@ export default function ChatBot() {
     }
 
     // Student-specific: assignments
-    if (role === 'student' && (lower.includes('assignment') || lower.includes('homework') || lower.includes('due'))) {
+    if (role === 'student' && (lower.includes('assignment') || lower.includes('homework'))) {
       const myAssign = assignments.filter(a => {
         const r = (user?.roll || '').toLowerCase();
         return r >= (a.rollFrom || '').toLowerCase() && r <= (a.rollTo || 'zzz').toLowerCase();
@@ -57,7 +223,7 @@ export default function ChatBot() {
       const dept = user?.dept || 'CSE';
       const year = user?.year || 1;
       const subjects = subjectCodes[dept]?.[year];
-      if (!subjects) return `I don't have the subject list for ${dept} Year ${year} yet. Check with your department. 📚`;
+      if (!subjects) return `I don't have the subject list for ${dept} Year ${year} yet. 📚`;
       let resp = `📚 **Your Subjects (${dept} Year ${year}):**\n`;
       subjects.forEach(s => { resp += `\n• **${s.code}** — ${s.name} (${s.credits} credits)`; });
       return resp;
@@ -65,13 +231,13 @@ export default function ChatBot() {
 
     // Student-specific: timetable
     if (role === 'student' && (lower.includes('timetable') || lower.includes('schedule') || lower.includes('class time'))) {
-      return `📅 Your timetable is in the **Timetable** section. Go to Menu → Timetable to download your class schedule. Your department is **${user?.dept || 'N/A'}**, Year **${user?.year || '?'}**.`;
+      return `📅 Your timetable is in the **Timetable** section. Go to Menu → Timetable to see your schedule. Dept: **${user?.dept || 'N/A'}**, Year **${user?.year || '?'}**.`;
     }
 
-    // Student-specific: my details
+    // My details
     if (lower.includes('my detail') || lower.includes('my profile') || lower.includes('who am i') || lower.includes('my info')) {
       if (role === 'student') {
-        return `👤 **Your Profile:**\n• Name: ${user?.name}\n• Roll: ${user?.roll}\n• Department: ${user?.dept}\n• Year: ${user?.year}${user?.section ? `\n• Section: ${user.section}` : ''}\n\nYou can change your password from the profile menu (top-right).`;
+        return `👤 **Your Profile:**\n• Name: ${user?.name}\n• Roll: ${user?.roll}\n• Department: ${user?.dept}\n• Year: ${user?.year}${user?.section ? `\n• Section: ${user.section}` : ''}\n• Karma: ${getKarma()} pts\n• Clubs: ${joinedClubs.length} joined`;
       }
       return `👤 **Your Profile:**\n• Name: ${user?.name}\n• ID: ${user?.id}\n• Department: ${user?.dept}\n• Role: ${user?.adminRole}`;
     }
@@ -111,8 +277,20 @@ export default function ChatBot() {
     }, 700);
   };
 
+  const handleBriefing = () => {
+    setInput('');
+    setIsTyping(true);
+    const userMsg = { id: messages.length + 1, type: 'user', text: '📋 My daily briefing', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
+    setMessages(prev => [...prev, userMsg]);
+    setTimeout(() => {
+      const resp = getPersonalizedResponse('daily briefing');
+      setMessages(prev => [...prev, { id: messages.length + 2, type: 'bot', text: resp, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
+      setIsTyping(false);
+    }, 900);
+  };
+
   const suggestedQueries = role === 'student'
-    ? ["My attendance?", "My assignments?", "My subjects?", "Vacant rooms?", "My profile"]
+    ? ["☀️ Daily briefing", "⏰ Deadlines", "📊 Attendance risk", "🎪 Events", "🏆 My karma", "🚀 Internships"]
     : ["Campus crowd?", "Vacant rooms?", "Library busy?", "Help"];
 
   if (!isOpen) {
@@ -141,6 +319,18 @@ export default function ChatBot() {
 
         {!isMinimized && (
           <>
+            {/* Daily briefing button */}
+            {role === 'student' && messages.length <= 3 && (
+              <button onClick={handleBriefing}
+                className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-amber-50 to-red-50 border-b border-gray-100 hover:from-amber-100 hover:to-red-100 transition-all text-left">
+                <Zap className="w-5 h-5 text-amber-500 shrink-0" />
+                <div>
+                  <p className="text-sm font-bold text-gray-800">⚡ Get Daily Briefing</p>
+                  <p className="text-[10px] text-gray-400">Attendance, deadlines, events & campus — one tap</p>
+                </div>
+              </button>
+            )}
+
             {/* Messages */}
             <div className="h-80 overflow-y-auto p-4 space-y-3 bg-gray-50">
               {messages.map(msg => (

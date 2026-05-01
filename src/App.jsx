@@ -9,6 +9,10 @@ import StudentAssignments from './pages/student/Assignments';
 import StudentTimetable from './pages/student/Timetable';
 import StudentAttendance from './pages/student/Attendance';
 import StudentStudyMaterials from './pages/student/StudyMaterials';
+import StudentClubs from './pages/student/Clubs';
+import StudentEvents from './pages/student/Events';
+import StudentCareer from './pages/student/Career';
+import StudentSkillTracker from './pages/student/SkillTracker';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import CampusAnalytics from './pages/admin/CampusAnalytics';
 import ComplaintManagement from './pages/admin/ComplaintManagement';
@@ -76,6 +80,10 @@ export default function App() {
       <Route path="/student/timetable" element={<ProtectedRoute allowedRole="student"><AppLayout><StudentTimetable /></AppLayout></ProtectedRoute>} />
       <Route path="/student/attendance" element={<ProtectedRoute allowedRole="student"><AppLayout><StudentAttendance /></AppLayout></ProtectedRoute>} />
       <Route path="/student/materials" element={<ProtectedRoute allowedRole="student"><AppLayout><StudentStudyMaterials /></AppLayout></ProtectedRoute>} />
+      <Route path="/student/clubs" element={<ProtectedRoute allowedRole="student"><AppLayout><StudentClubs /></AppLayout></ProtectedRoute>} />
+      <Route path="/student/events" element={<ProtectedRoute allowedRole="student"><AppLayout><StudentEvents /></AppLayout></ProtectedRoute>} />
+      <Route path="/student/career" element={<ProtectedRoute allowedRole="student"><AppLayout><StudentCareer /></AppLayout></ProtectedRoute>} />
+      <Route path="/student/skills" element={<ProtectedRoute allowedRole="student"><AppLayout><StudentSkillTracker /></AppLayout></ProtectedRoute>} />
 
       {/* Admin Routes */}
       <Route path="/admin" element={<ProtectedRoute allowedRole="admin"><AppLayout><AdminDashboard /></AppLayout></ProtectedRoute>} />

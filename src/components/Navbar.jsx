@@ -1,5 +1,5 @@
 import { useAuth } from '../contexts/AuthContext';
-import { Bell, LogOut, Menu, LayoutDashboard, MapPin, MessageSquareWarning, BarChart3, Megaphone, ClipboardList, Sparkles, BookOpen, BookMarked, Calendar, UserCheck, KeyRound, X, Users, Database } from 'lucide-react';
+import { Bell, LogOut, Menu, LayoutDashboard, MapPin, MessageSquareWarning, BarChart3, Megaphone, ClipboardList, Sparkles, BookOpen, BookMarked, Calendar, UserCheck, KeyRound, X, Users, Database, Trophy, Briefcase, Target, PartyPopper } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
 import { useState, useRef, useEffect } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
@@ -7,11 +7,15 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 const studentLinks = [
   { to: '/student', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/student/campus', icon: MapPin, label: 'Campus Live' },
-  { to: '/student/complaints', icon: MessageSquareWarning, label: 'Complaints' },
+  { to: '/student/clubs', icon: Trophy, label: 'Clubs' },
+  { to: '/student/events', icon: PartyPopper, label: 'Events' },
   { to: '/student/assignments', icon: BookOpen, label: 'Assignments' },
   { to: '/student/materials', icon: BookMarked, label: 'Materials' },
   { to: '/student/timetable', icon: Calendar, label: 'Timetable' },
   { to: '/student/attendance', icon: UserCheck, label: 'Attendance' },
+  { to: '/student/career', icon: Briefcase, label: 'Career Hub' },
+  { to: '/student/skills', icon: Target, label: 'Skill Radar' },
+  { to: '/student/complaints', icon: MessageSquareWarning, label: 'Complaints' },
 ];
 
 const adminLinks = [

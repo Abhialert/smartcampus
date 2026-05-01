@@ -1,8 +1,14 @@
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useApp } from '../../contexts/AppContext';
-import { Users, DoorOpen, Megaphone, MessageSquareWarning, MapPin, Clock, ArrowRight, ArrowUpRight, Shield, BookOpen, UserCheck, BookMarked, Calendar } from 'lucide-react';
+import { Users, DoorOpen, Megaphone, MessageSquareWarning, MapPin, Clock, ArrowRight, ArrowUpRight, Shield, BookOpen, UserCheck, BookMarked, Calendar, Trophy, AlertTriangle, Zap, PartyPopper, Target, BarChart3 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { subjectCodes } from '../../data/campusData';
+import { campusEvents, campusClubs } from '../../data/clubsData';
+import { defaultPolls } from '../../data/careerData';
+import { skillsByDept } from '../../data/careerData';
+
+const POLL_VOTES_KEY = 'smartcampus_poll_votes';
 
 export default function StudentDashboard() {
   const { user } = useAuth();
@@ -17,20 +23,64 @@ export default function StudentDashboard() {
   });
   const pendingAssignments = myAssignments.filter(a => new Date(a.dueDate) > new Date());
 
-  // Calculate attendance
+  // Attendance
   const myAttendance = attendanceRecords.filter(r => r.records?.some(s => s.roll === user?.roll));
   const totalClasses = myAttendance.length;
   const presentClasses = myAttendance.filter(r => r.records?.find(s => s.roll === user?.roll)?.present).length;
   const attendancePercent = totalClasses > 0 ? Math.round((presentClasses / totalClasses) * 100) : 0;
 
-  // Subject list for current student
   const mySubjects = subjectCodes[user?.dept]?.[user?.year] || [];
+
+  // Karma auto-calculation
+  const joinedClubs = JSON.parse(localStorage.getItem('smartcampus_joined_clubs') || '[]');
+  const eventRsvps = JSON.parse(localStorage.getItem('smartcampus_event_rsvps') || '[]');
+  const skillRatings = JSON.parse(localStorage.getItem('smartcampus_skill_ratings') || '{}');
+  let karma = 0;
+  karma += Math.round(attendancePercent * 0.5);
+  karma += joinedClubs.length * 10;
+  karma += eventRsvps.length * 8;
+  karma += Object.keys(skillRatings).length * 3;
+  const karmaLevel = karma >= 100 ? '🏆 Gold' : karma >= 50 ? '🥈 Silver' : '🥉 Bronze';
+
+  // Upcoming events (next 7 days)
+  const upcomingEvents = campusEvents.filter(e => {
+    const d = Math.ceil((new Date(e.date) - new Date()) / (864e5));
+    return d >= 0 && d <= 14;
+  }).sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  // Deadline countdowns
+  const deadlines = pendingAssignments.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate)).slice(0, 4);
+
+  // Attendance risk predictor
+  const riskPredictions = [];
+  if (totalClasses > 0) {
+    for (let miss = 1; miss <= 3; miss++) {
+      riskPredictions.push({ miss, pct: Math.round((presentClasses / (totalClasses + miss)) * 100) });
+    }
+  }
+
+  // Polls
+  const [pollVotes, setPollVotes] = useState(() => JSON.parse(localStorage.getItem(POLL_VOTES_KEY) || '{}'));
+  const [polls, setPolls] = useState(defaultPolls);
+
+  const votePoll = (pollId, optionIdx) => {
+    if (pollVotes[pollId] !== undefined) return;
+    const newVotes = { ...pollVotes, [pollId]: optionIdx };
+    setPollVotes(newVotes);
+    localStorage.setItem(POLL_VOTES_KEY, JSON.stringify(newVotes));
+    setPolls(prev => prev.map(p => {
+      if (p.id !== pollId) return p;
+      const newV = [...p.votes];
+      newV[optionIdx] += 1;
+      return { ...p, votes: newV };
+    }));
+  };
 
   const statusCards = [
     { label: 'Vacant Rooms', value: `${vacantCount}/${totalRooms}`, icon: DoorOpen, bgColor: 'bg-emerald-50', textColor: 'text-emerald-500', link: '/student/campus', desc: 'Available now' },
     { label: 'Assignments', value: pendingAssignments.length, icon: BookOpen, bgColor: 'bg-red-50', textColor: 'text-red-500', link: '/student/assignments', desc: `${myAssignments.length} total` },
     { label: 'Attendance', value: `${attendancePercent}%`, icon: UserCheck, bgColor: 'bg-blue-50', textColor: 'text-blue-500', link: '/student/attendance', desc: `${presentClasses}/${totalClasses} classes` },
-    { label: 'My Reports', value: myComplaints.length, icon: MessageSquareWarning, bgColor: 'bg-purple-50', textColor: 'text-purple-500', link: '/student/complaints', desc: 'Track issues' },
+    { label: 'Campus Karma', value: karma, icon: Trophy, bgColor: 'bg-amber-50', textColor: 'text-amber-500', link: '/student/clubs', desc: karmaLevel },
   ];
 
   return (
@@ -59,7 +109,7 @@ export default function StudentDashboard() {
           <div className="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center shrink-0"><UserCheck className="w-7 h-7 text-amber-600" /></div>
           <div className="flex-1">
             <p className="text-lg font-bold text-amber-800">⚠️ Attendance Low — {attendancePercent}%</p>
-            <p className="text-sm text-amber-600 mt-1">You need 75% minimum attendance. Attend more classes to avoid shortage.</p>
+            <p className="text-sm text-amber-600 mt-1">You need 75% minimum. Attend more classes to avoid shortage.</p>
           </div>
           <Link to="/student/attendance" className="btn-primary shrink-0 bg-amber-500 shadow-amber-200 hover:bg-amber-600">View Details</Link>
         </div>
@@ -81,6 +131,83 @@ export default function StudentDashboard() {
             <p className="text-sm text-gray-400 mt-0.5">{card.desc}</p>
           </Link>
         ))}
+      </div>
+
+      {/* Deadline Countdown + Attendance Risk */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Deadline Countdown */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+            <div className="flex items-center gap-2"><Zap className="w-5 h-5 text-red-400" /><h3 className="font-bold text-sm text-gray-700 uppercase tracking-wider">Deadline Countdown</h3></div>
+            <Link to="/student/assignments" className="text-xs font-bold text-red-500 hover:underline">View All</Link>
+          </div>
+          <div className="p-5 space-y-3">
+            {deadlines.length > 0 ? deadlines.map(a => {
+              const days = Math.ceil((new Date(a.dueDate) - new Date()) / (864e5));
+              const urgency = days <= 2 ? 'border-red-200 bg-red-50' : days <= 5 ? 'border-amber-200 bg-amber-50' : 'border-green-200 bg-green-50';
+              const urgText = days <= 2 ? 'text-red-600' : days <= 5 ? 'text-amber-600' : 'text-green-600';
+              return (
+                <div key={a.id} className={`p-4 rounded-xl border-2 ${urgency} transition-all`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-gray-800 truncate">{a.title}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{a.subject || 'General'}</p>
+                    </div>
+                    <div className={`text-right ${urgText}`}>
+                      <p className="text-2xl font-black">{days}</p>
+                      <p className="text-[10px] font-bold uppercase">day{days !== 1 ? 's' : ''}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            }) : (
+              <div className="text-center py-8 text-gray-400"><p className="text-3xl mb-2">🎉</p><p className="font-bold">No deadlines!</p></div>
+            )}
+          </div>
+        </div>
+
+        {/* Attendance Risk Predictor */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="p-5 border-b border-gray-100 flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-amber-400" />
+            <h3 className="font-bold text-sm text-gray-700 uppercase tracking-wider">Attendance Risk Predictor</h3>
+          </div>
+          <div className="p-5">
+            {totalClasses > 0 ? (
+              <>
+                {/* Current gauge */}
+                <div className="flex items-center justify-center mb-5">
+                  <div className="relative w-32 h-32">
+                    <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
+                      <circle cx="60" cy="60" r="50" fill="none" stroke="#f3f4f6" strokeWidth="10" />
+                      <circle cx="60" cy="60" r="50" fill="none" stroke={attendancePercent >= 75 ? '#22c55e' : '#ef4444'} strokeWidth="10"
+                        strokeDasharray={`${attendancePercent * 3.14} ${314 - attendancePercent * 3.14}`} strokeLinecap="round" className="transition-all duration-1000" />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <p className="text-2xl font-black text-gray-900">{attendancePercent}%</p>
+                      <p className="text-[10px] text-gray-400 font-bold">Current</p>
+                    </div>
+                  </div>
+                </div>
+                {/* Predictions */}
+                <div className="space-y-2">
+                  {riskPredictions.map(r => (
+                    <div key={r.miss} className="flex items-center gap-3">
+                      <span className="text-xs text-gray-400 font-bold w-24">Miss {r.miss} more →</span>
+                      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full rounded-full transition-all duration-500" style={{ width: `${r.pct}%`, backgroundColor: r.pct >= 75 ? '#22c55e' : '#ef4444' }} />
+                      </div>
+                      <span className={`text-sm font-black w-12 text-right ${r.pct >= 75 ? 'text-green-600' : 'text-red-500'}`}>{r.pct}%</span>
+                    </div>
+                  ))}
+                  <p className="text-[10px] text-gray-400 text-center mt-2">75% minimum required to avoid shortage</p>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-8 text-gray-400"><BarChart3 className="w-8 h-8 mx-auto mb-2 text-gray-200" /><p className="font-bold text-sm">No attendance data yet</p></div>
+            )}
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-7">
@@ -109,6 +236,32 @@ export default function StudentDashboard() {
 
         {/* Sidebar */}
         <div className="space-y-6">
+          {/* Upcoming Events */}
+          <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
+            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+              <div className="flex items-center gap-2"><PartyPopper className="w-4 h-4 text-red-400" /><h3 className="font-bold text-sm text-gray-700 uppercase tracking-wider">Upcoming Events</h3></div>
+              <Link to="/student/events" className="text-xs font-bold text-red-500 hover:underline">All</Link>
+            </div>
+            <div className="p-4 space-y-2">
+              {upcomingEvents.length > 0 ? upcomingEvents.slice(0, 3).map(evt => {
+                const club = campusClubs.find(c => c.id === evt.club);
+                const days = Math.ceil((new Date(evt.date) - new Date()) / (864e5));
+                return (
+                  <Link to="/student/events" key={evt.id} className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100 hover:bg-red-50 hover:border-red-100 transition-all">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style={{ backgroundColor: (club?.color || '#ef4444') + '15' }}>{club?.emoji || '🎪'}</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-gray-800 truncate">{evt.title}</p>
+                      <p className="text-[10px] text-gray-400">{evt.date} • {days === 0 ? 'Today!' : `${days}d away`}</p>
+                    </div>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${evt.type === 'inter' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
+                      {evt.type === 'inter' ? '🌐' : '🏠'}
+                    </span>
+                  </Link>
+                );
+              }) : <p className="text-center py-6 text-gray-400 text-sm font-bold">No upcoming events</p>}
+            </div>
+          </div>
+
           {/* Live Monitor */}
           <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
             <div className="p-5 border-b border-gray-100 flex items-center justify-between">
@@ -126,30 +279,69 @@ export default function StudentDashboard() {
                   </div>
                 </div>
               ))}
-              <Link to="/student/campus" className="btn-primary w-full mt-2">
-                Campus Map <ArrowRight className="w-4 h-4" />
-              </Link>
+              <Link to="/student/campus" className="btn-primary w-full mt-2">Campus Map <ArrowRight className="w-4 h-4" /></Link>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Quick Actions */}
-          <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
-            <h3 className="font-bold text-sm text-gray-700 uppercase tracking-wider mb-4 flex items-center gap-2"><Shield className="w-4 h-4 text-red-400" />Quick Actions</h3>
-            <div className="space-y-3">
-              <Link to="/student/complaints" className="flex items-center gap-4 p-4 rounded-xl bg-red-50 border border-red-100 hover:bg-red-100/50 transition-all group active:scale-95">
-                <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center"><MessageSquareWarning className="w-5 h-5 text-red-500" /></div>
-                <div><p className="text-base font-bold text-gray-800">File Report</p><p className="text-sm text-gray-400">Ragging, Infra, Lost items</p></div>
-              </Link>
-              <Link to="/student/materials" className="flex items-center gap-4 p-4 rounded-xl bg-blue-50 border border-blue-100 hover:bg-blue-100/50 transition-all group active:scale-95">
-                <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center"><BookMarked className="w-5 h-5 text-blue-500" /></div>
-                <div><p className="text-base font-bold text-gray-800">Study Materials</p><p className="text-sm text-gray-400">Notes, PYQs, references</p></div>
-              </Link>
-              <Link to="/student/campus" className="flex items-center gap-4 p-4 rounded-xl bg-emerald-50 border border-emerald-100 hover:bg-emerald-100/50 transition-all group active:scale-95">
-                <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center"><DoorOpen className="w-5 h-5 text-emerald-500" /></div>
-                <div><p className="text-base font-bold text-gray-800">Find Room</p><p className="text-sm text-gray-400">{vacantCount} rooms available</p></div>
-              </Link>
+      {/* Campus Polls */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="p-5 border-b border-gray-100 flex items-center gap-2">
+          <span className="text-lg">🗳️</span>
+          <h3 className="font-bold text-sm text-gray-700 uppercase tracking-wider">Campus Polls — Vote Now!</h3>
+        </div>
+        {(() => {
+          const activeUnvotedPolls = polls.filter(p => p.active && pollVotes[p.id] === undefined);
+          if (activeUnvotedPolls.length === 0) {
+            return (
+              <div className="p-10 text-center">
+                <span className="text-4xl mb-3 block">✅</span>
+                <p className="text-base font-bold text-gray-800">All caught up!</p>
+                <p className="text-xs text-gray-400 mt-1">You've answered all active campus polls. Check back later.</p>
+              </div>
+            );
+          }
+          return (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-0 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+              {activeUnvotedPolls.map(poll => (
+                <div key={poll.id} className="p-5 animate-fade-in">
+                  <p className="text-sm font-bold text-gray-800 mb-3">{poll.question}</p>
+                  <div className="space-y-2">
+                    {poll.options.map((opt, idx) => (
+                      <button key={idx} onClick={() => votePoll(poll.id, idx)}
+                        className="w-full text-left p-3 rounded-xl text-sm font-semibold transition-all relative overflow-hidden border-2 border-gray-100 bg-gray-50 hover:border-red-300 hover:bg-red-50 active:scale-95 group">
+                        <span className="text-gray-700 group-hover:text-red-600 transition-colors">{opt}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
+          );
+        })()}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+        <h3 className="font-bold text-sm text-gray-700 uppercase tracking-wider mb-4 flex items-center gap-2"><Shield className="w-4 h-4 text-red-400" />Quick Actions</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <Link to="/student/complaints" className="flex items-center gap-3 p-4 rounded-xl bg-red-50 border border-red-100 hover:bg-red-100/50 transition-all active:scale-95">
+            <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center"><MessageSquareWarning className="w-5 h-5 text-red-500" /></div>
+            <div><p className="text-sm font-bold text-gray-800">File Report</p><p className="text-[10px] text-gray-400">Ragging / Infra</p></div>
+          </Link>
+          <Link to="/student/materials" className="flex items-center gap-3 p-4 rounded-xl bg-blue-50 border border-blue-100 hover:bg-blue-100/50 transition-all active:scale-95">
+            <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center"><BookMarked className="w-5 h-5 text-blue-500" /></div>
+            <div><p className="text-sm font-bold text-gray-800">Materials</p><p className="text-[10px] text-gray-400">Notes & PYQs</p></div>
+          </Link>
+          <Link to="/student/career" className="flex items-center gap-3 p-4 rounded-xl bg-purple-50 border border-purple-100 hover:bg-purple-100/50 transition-all active:scale-95">
+            <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center"><Target className="w-5 h-5 text-purple-500" /></div>
+            <div><p className="text-sm font-bold text-gray-800">Career Hub</p><p className="text-[10px] text-gray-400">Jobs & Resume</p></div>
+          </Link>
+          <Link to="/student/campus" className="flex items-center gap-3 p-4 rounded-xl bg-emerald-50 border border-emerald-100 hover:bg-emerald-100/50 transition-all active:scale-95">
+            <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center"><DoorOpen className="w-5 h-5 text-emerald-500" /></div>
+            <div><p className="text-sm font-bold text-gray-800">Find Room</p><p className="text-[10px] text-gray-400">{vacantCount} available</p></div>
+          </Link>
         </div>
       </div>
 
