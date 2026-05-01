@@ -71,26 +71,26 @@ export default function Navbar() {
 
   return (
     <>
-    <nav ref={dropdownRef} className="bg-white/95 backdrop-blur-xl flex items-center justify-between px-4 sm:px-6 lg:px-8 border-b border-gray-200/60 z-40 relative shadow-sm" style={{ minHeight: '64px' }}>
-      <div className="flex items-center gap-3 sm:gap-5">
+    <nav ref={dropdownRef} className="bg-white/70 backdrop-blur-3xl flex items-center justify-between px-6 sm:px-8 lg:px-10 border-b border-slate-200/50 z-40 relative shadow-[0_2px_10px_-2px_rgba(0,0,0,0.02)]" style={{ minHeight: '80px' }}>
+      <div className="flex items-center gap-4 sm:gap-6">
         {/* PROMINENT MENU BUTTON */}
         <div className="relative">
           <button onClick={() => { setShowNav(!showNav); setShowNotifications(false); setShowProfile(false); }}
-            className={`flex items-center gap-2 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl font-bold text-sm transition-all active:scale-95 border-2 ${showNav ? 'bg-red-500 text-white border-red-500 shadow-lg shadow-red-200' : 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100 hover:border-red-300'}`}
+            className={`flex items-center gap-2.5 px-4 py-3 rounded-2xl font-bold text-sm transition-all duration-300 active:scale-95 border ${showNav ? 'bg-rose-600 text-white border-rose-600 shadow-[0_8px_20px_-4px_rgba(225,29,72,0.3)]' : 'bg-white/80 text-slate-700 border-slate-200/80 hover:bg-slate-50 hover:border-slate-300 shadow-sm'}`}
             title="Open Navigation Menu">
             <Menu className="w-5 h-5" />
-            <span className="hidden sm:inline">Menu</span>
+            <span className="hidden sm:inline tracking-wide">Menu</span>
           </button>
           {showNav && (
-            <div className="absolute top-full left-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl animate-fade-in z-50 p-3 border border-gray-100">
-              <p className="text-[10px] uppercase tracking-widest text-gray-400 px-3 py-2 font-bold border-b border-gray-100 mb-2">Navigation</p>
-              <div className="space-y-1">
+            <div className="absolute top-full left-0 mt-4 w-72 bg-white/95 backdrop-blur-xl rounded-3xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.1)] animate-fade-in z-50 p-4 border border-slate-100">
+              <p className="text-[10px] uppercase tracking-widest text-slate-400 px-4 py-2 font-black border-b border-slate-100/50 mb-3">Navigation</p>
+              <div className="space-y-1.5">
                 {links.map((link) => {
                   const isActive = location.pathname === link.to;
                   return (
                     <NavLink key={link.to} to={link.to} onClick={() => setShowNav(false)}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all active:scale-95 ${isActive ? 'bg-red-50 text-red-600 border border-red-100' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}>
-                      <link.icon className={`w-5 h-5 ${isActive ? 'text-red-500' : 'text-gray-400'}`} />
+                      className={`flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-sm font-semibold transition-all active:scale-95 ${isActive ? 'bg-rose-50 text-rose-600 border border-rose-100 shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent'}`}>
+                      <link.icon className={`w-5 h-5 ${isActive ? 'text-rose-500' : 'text-slate-400'}`} />
                       {link.label}
                     </NavLink>
                   );
@@ -100,46 +100,46 @@ export default function Navbar() {
           )}
         </div>
 
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-md">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center shadow-lg shadow-rose-500/20">
             <Sparkles className="w-5 h-5 text-white" />
           </div>
-          <h1 className="text-lg font-black tracking-tight text-gray-900 hidden sm:block">Smart<span className="text-red-500">Campus</span></h1>
+          <h1 className="text-xl font-black tracking-tight text-slate-900 hidden sm:block">Smart<span className="text-rose-600">Campus</span></h1>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-4">
-        <span className="hidden lg:inline text-sm font-semibold text-gray-500">Welcome, <span className="text-red-600 font-bold">{firstName}</span></span>
+      <div className="flex items-center gap-3 sm:gap-5">
+        <span className="hidden lg:inline text-sm font-semibold text-slate-500 tracking-wide">Welcome back, <span className="text-slate-800 font-black">{firstName}</span></span>
 
         {/* Notifications */}
         <div className="relative">
           <button onClick={() => { setShowNotifications(!showNotifications); setShowNav(false); setShowProfile(false); }}
-            className={`relative p-2.5 sm:p-3 rounded-xl transition-all active:scale-95 ${showNotifications ? 'bg-red-50 text-red-500' : 'hover:bg-gray-100 text-gray-500'}`}>
-            <Bell className="w-5 h-5 sm:w-6 sm:h-6" />
+            className={`relative p-3 rounded-2xl transition-all active:scale-95 border ${showNotifications ? 'bg-rose-50 text-rose-600 border-rose-100 shadow-sm' : 'bg-white/80 hover:bg-slate-50 text-slate-500 border-slate-200/80 hover:border-slate-300 shadow-sm'}`}>
+            <Bell className="w-5 h-5" />
             {unreadAnnouncements.length > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-5 h-5 px-1.5 bg-red-500 text-[10px] font-bold rounded-full flex items-center justify-center text-white border-2 border-white animate-pulse">{unreadAnnouncements.length}</span>
+              <span className="absolute -top-1 -right-1 min-w-[22px] h-[22px] px-1.5 bg-rose-600 text-[10px] font-black rounded-full flex items-center justify-center text-white border-2 border-white shadow-sm animate-pulse">{unreadAnnouncements.length}</span>
             )}
           </button>
           {showNotifications && (
-            <div className="absolute right-0 top-full mt-3 w-80 bg-white rounded-2xl shadow-2xl animate-fade-in z-50 border border-gray-100">
-              <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-                <h3 className="text-sm font-bold uppercase text-gray-700">Notifications</h3>
-                {unreadAnnouncements.length > 0 && <button onClick={() => { markAllAsSeen(); setShowNotifications(false); }} className="text-xs font-bold text-red-500 hover:underline">Clear</button>}
+            <div className="absolute right-0 top-full mt-4 w-80 sm:w-96 bg-white/95 backdrop-blur-xl rounded-3xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.1)] animate-fade-in z-50 border border-slate-100 overflow-hidden">
+              <div className="p-5 border-b border-slate-100/50 flex items-center justify-between bg-slate-50/50">
+                <h3 className="text-xs font-black uppercase tracking-widest text-slate-700">Notifications</h3>
+                {unreadAnnouncements.length > 0 && <button onClick={() => { markAllAsSeen(); setShowNotifications(false); }} className="text-xs font-black text-rose-500 hover:text-rose-600 transition-colors">Clear All</button>}
               </div>
-              <div className="max-h-80 overflow-y-auto divide-y divide-gray-50">
+              <div className="max-h-[350px] overflow-y-auto divide-y divide-slate-50">
                 {unreadAnnouncements.length > 0 ? unreadAnnouncements.slice(0,5).map(n => (
                   <div key={n.id} onClick={() => { markAsSeen(n.id); setShowNotifications(false); navigate(role==='admin'?'/admin/announcements':'/student/announcements'); }}
-                    className="p-4 hover:bg-red-50/50 cursor-pointer">
-                    <p className="text-sm font-bold text-gray-800 truncate">{n.title}</p>
-                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">{n.content}</p>
+                    className="p-5 hover:bg-rose-50/50 cursor-pointer transition-colors group">
+                    <p className="text-sm font-bold text-slate-800 truncate group-hover:text-rose-600 transition-colors">{n.title}</p>
+                    <p className="text-xs text-slate-500 mt-1.5 line-clamp-2 leading-relaxed">{n.content}</p>
                   </div>
                 )) : (
-                  <div className="p-10 text-center"><Bell className="w-8 h-8 text-gray-200 mx-auto mb-2" /><p className="text-sm text-gray-400 font-semibold">All caught up!</p></div>
+                  <div className="p-12 text-center"><Bell className="w-10 h-10 text-slate-200 mx-auto mb-3" /><p className="text-sm text-slate-400 font-bold">All caught up!</p></div>
                 )}
               </div>
-              <div className="p-3 border-t border-gray-100">
+              <div className="p-4 border-t border-slate-100/50 bg-slate-50/50">
                 <NavLink to={role==='admin'?'/admin/announcements':'/student/announcements'} onClick={() => setShowNotifications(false)}
-                  className="block text-center py-2.5 rounded-xl text-xs font-bold text-gray-500 hover:text-red-500 hover:bg-red-50 transition-all">View All</NavLink>
+                  className="block text-center py-3 rounded-2xl text-xs font-black tracking-widest uppercase text-slate-500 hover:text-rose-600 hover:bg-white transition-all shadow-sm border border-transparent hover:border-slate-200/50">View All</NavLink>
               </div>
             </div>
           )}
@@ -148,26 +148,28 @@ export default function Navbar() {
         {/* Profile */}
         <div className="relative">
           <button onClick={() => { setShowProfile(!showProfile); setShowNav(false); setShowNotifications(false); }}
-            className="flex items-center gap-2.5 p-1.5 sm:p-2 rounded-xl hover:bg-gray-50 transition-all active:scale-95 border border-transparent hover:border-gray-100">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center text-sm font-bold text-white shadow-md">{firstName[0]}</div>
-            <div className="text-left hidden lg:block pr-1">
-              <p className="text-sm font-bold text-gray-800 leading-none">{firstName}</p>
-              <p className="text-[10px] text-gray-400 mt-0.5 uppercase font-bold">{role==='admin'?(user?.adminRole||'Admin'):'Student'}</p>
+            className={`flex items-center gap-3 p-1.5 sm:p-2 rounded-2xl transition-all active:scale-95 border ${showProfile ? 'bg-slate-50 border-slate-200' : 'bg-transparent border-transparent hover:bg-white hover:border-slate-200/80 shadow-sm hover:shadow-sm'}`}>
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-slate-800 flex items-center justify-center text-sm font-black text-white shadow-md">{firstName[0]}</div>
+            <div className="text-left hidden lg:block pr-2">
+              <p className="text-sm font-black text-slate-800 leading-none">{firstName}</p>
+              <p className="text-[10px] text-slate-400 mt-1 uppercase font-bold tracking-wider">{role==='admin'?(user?.adminRole||'Admin'):'Student'}</p>
             </div>
           </button>
           {showProfile && (
-            <div className="absolute right-0 top-full mt-3 w-64 bg-white rounded-2xl shadow-2xl animate-fade-in z-50 border border-gray-100 p-3">
-              <div className="p-4 border-b border-gray-100 mb-2">
-                <p className="font-bold text-base text-gray-800">{user?.name}</p>
-                <p className="text-xs text-gray-400 mt-1 font-mono">{role==='student'?`Roll: ${user?.roll}`:`ID: ${user?.id}`}</p>
-                {user?.dept && <p className="text-xs text-gray-400 mt-0.5">Dept: {user.dept}</p>}
+            <div className="absolute right-0 top-full mt-4 w-72 bg-white/95 backdrop-blur-xl rounded-3xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.1)] animate-fade-in z-50 border border-slate-100 p-4">
+              <div className="p-5 border-b border-slate-100/50 mb-3 bg-slate-50/50 rounded-2xl">
+                <p className="font-black text-base text-slate-800">{user?.name}</p>
+                <p className="text-xs text-slate-500 mt-1.5 font-mono bg-white inline-block px-2 py-0.5 rounded-md border border-slate-100">{role==='student'?`Roll: ${user?.roll}`:`ID: ${user?.id}`}</p>
+                {user?.dept && <p className="text-xs text-slate-500 mt-2 font-medium tracking-wide">Dept: {user.dept}</p>}
               </div>
-              {role==='student' && (
-                <button onClick={() => { setShowProfile(false); setShowPwModal(true); }}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition-all"><KeyRound className="w-5 h-5" />Change Password</button>
-              )}
-              <button onClick={() => { logout(); setShowProfile(false); }}
-                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 rounded-xl transition-all active:scale-95"><LogOut className="w-5 h-5" />Sign Out</button>
+              <div className="space-y-1.5">
+                {role==='student' && (
+                  <button onClick={() => { setShowProfile(false); setShowPwModal(true); }}
+                    className="w-full flex items-center gap-3 px-5 py-3.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-2xl transition-all border border-transparent hover:border-slate-100"><KeyRound className="w-5 h-5 text-slate-400" />Change Password</button>
+                )}
+                <button onClick={() => { logout(); setShowProfile(false); }}
+                  className="w-full flex items-center gap-3 px-5 py-3.5 text-sm font-bold text-rose-600 hover:bg-rose-50 hover:border-rose-100 rounded-2xl transition-all active:scale-95 border border-transparent"><LogOut className="w-5 h-5 text-rose-500" />Sign Out</button>
+              </div>
             </div>
           )}
         </div>
@@ -176,22 +178,25 @@ export default function Navbar() {
 
     {/* Password Modal */}
     {showPwModal && (
-      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-        <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl">
+      <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fade-in">
+        <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden border border-slate-100">
           {pwSuccess ? (
-            <div className="p-10 text-center"><div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4"><KeyRound className="w-8 h-8 text-green-600" /></div><h3 className="text-xl font-bold">Password Changed!</h3></div>
+            <div className="p-12 text-center"><div className="w-20 h-20 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center mx-auto mb-5"><KeyRound className="w-10 h-10 text-emerald-500" /></div><h3 className="text-2xl font-black text-slate-800">Password Changed!</h3></div>
           ) : (
             <>
-              <div className="p-6 border-b border-gray-100 flex justify-between items-center"><h2 className="text-lg font-bold">Change Password</h2><button onClick={() => setShowPwModal(false)}><X className="w-5 h-5 text-gray-400" /></button></div>
-              <div className="p-6 space-y-4">
-                <input type="password" placeholder="Current password" value={pwForm.current} onChange={e=>setPwForm({...pwForm,current:e.target.value})} className="w-full bg-gray-50 text-base px-5 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:border-red-300" />
-                <input type="password" placeholder="New password" value={pwForm.newPw} onChange={e=>setPwForm({...pwForm,newPw:e.target.value})} className="w-full bg-gray-50 text-base px-5 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:border-red-300" />
-                <input type="password" placeholder="Confirm new password" value={pwForm.confirm} onChange={e=>setPwForm({...pwForm,confirm:e.target.value})} className="w-full bg-gray-50 text-base px-5 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:border-red-300" />
-                {pwError && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-xl">{pwError}</p>}
+              <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h2 className="text-xl font-black text-slate-800">Change Password</h2>
+                <button onClick={() => setShowPwModal(false)} className="p-2 bg-white rounded-full hover:bg-slate-100 transition-colors border border-slate-200"><X className="w-5 h-5 text-slate-500" /></button>
               </div>
-              <div className="p-6 border-t border-gray-100 flex gap-3">
-                <button onClick={() => setShowPwModal(false)} className="flex-1 py-3 rounded-xl border border-gray-200 text-base text-gray-600 hover:bg-gray-50">Cancel</button>
-                <button onClick={handlePwChange} disabled={!pwForm.current||!pwForm.newPw||!pwForm.confirm} className="flex-1 py-3 rounded-xl bg-red-500 text-white text-base font-semibold disabled:opacity-30 hover:bg-red-600">Update</button>
+              <div className="p-8 space-y-5">
+                <input type="password" placeholder="Current password" value={pwForm.current} onChange={e=>setPwForm({...pwForm,current:e.target.value})} className="form-input" />
+                <input type="password" placeholder="New password" value={pwForm.newPw} onChange={e=>setPwForm({...pwForm,newPw:e.target.value})} className="form-input" />
+                <input type="password" placeholder="Confirm new password" value={pwForm.confirm} onChange={e=>setPwForm({...pwForm,confirm:e.target.value})} className="form-input" />
+                {pwError && <p className="text-rose-600 text-sm bg-rose-50 border border-rose-100 p-4 rounded-xl font-medium">{pwError}</p>}
+              </div>
+              <div className="p-8 border-t border-slate-100 flex gap-4 bg-slate-50/50">
+                <button onClick={() => setShowPwModal(false)} className="btn-secondary flex-1">Cancel</button>
+                <button onClick={handlePwChange} disabled={!pwForm.current||!pwForm.newPw||!pwForm.confirm} className="btn-primary flex-1">Update Password</button>
               </div>
             </>
           )}

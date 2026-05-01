@@ -84,64 +84,64 @@ export default function StudentDashboard() {
   ];
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto pb-12">
+    <div className="space-y-12 max-w-7xl mx-auto pb-24">
       {/* Header */}
       <div className="animate-fade-in flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-black tracking-tight text-gray-900">
-            Hi, <span className="text-red-500">{user?.name?.split(' ')[0] || 'Student'}</span>! 👋
+          <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900">
+            Hi, <span className="text-rose-600">{user?.name?.split(' ')[0] || 'Student'}</span>! 👋
           </h1>
-          <p className="text-gray-500 text-lg font-medium mt-2">Welcome to your SmartCampus dashboard.</p>
-          <div className="flex items-center gap-4 mt-3">
-            <span className="text-sm font-bold bg-red-50 text-red-500 px-3 py-1.5 rounded-lg border border-red-100">{user?.dept || 'N/A'} • Year {user?.year || '?'}{user?.section ? ` • Sec ${user.section}` : ''}</span>
-            <span className="text-sm font-mono text-gray-400">{user?.roll}</span>
+          <p className="text-slate-500 text-lg font-medium mt-3">Welcome to your SmartCampus dashboard.</p>
+          <div className="flex items-center gap-4 mt-4">
+            <span className="text-sm font-bold bg-rose-50 text-rose-600 px-4 py-2 rounded-xl border border-rose-100">{user?.dept || 'N/A'} • Year {user?.year || '?'}{user?.section ? ` • Sec ${user.section}` : ''}</span>
+            <span className="text-sm font-mono text-slate-400 bg-white/50 px-3 py-1.5 rounded-xl border border-slate-200/50 backdrop-blur-sm">{user?.roll}</span>
           </div>
         </div>
-        <div className="bg-white/80 backdrop-blur px-5 py-3 rounded-2xl flex items-center gap-3 border border-gray-100 shadow-sm">
-          <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-          <span className="text-sm font-bold text-gray-700 tracking-wide uppercase">System Live</span>
+        <div className="bg-white/60 backdrop-blur-2xl px-6 py-4 rounded-3xl flex items-center gap-3 border border-white/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+          <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
+          <span className="text-sm font-black text-slate-700 tracking-widest uppercase">System Live</span>
         </div>
       </div>
 
       {/* Attendance Alert */}
       {totalClasses > 0 && attendancePercent < 75 && (
-        <div className="bg-amber-50 rounded-2xl p-6 border border-amber-200 flex items-center gap-5 animate-fade-in">
-          <div className="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center shrink-0"><UserCheck className="w-7 h-7 text-amber-600" /></div>
-          <div className="flex-1">
-            <p className="text-lg font-bold text-amber-800">⚠️ Attendance Low — {attendancePercent}%</p>
-            <p className="text-sm text-amber-600 mt-1">You need 75% minimum. Attend more classes to avoid shortage.</p>
+        <div className="bg-amber-50/80 backdrop-blur-xl rounded-3xl p-8 border border-amber-200/50 flex flex-col md:flex-row items-center gap-6 animate-fade-in shadow-[0_8px_30px_rgba(245,158,11,0.1)]">
+          <div className="w-16 h-16 rounded-2xl bg-amber-100 flex items-center justify-center shrink-0"><UserCheck className="w-8 h-8 text-amber-600" /></div>
+          <div className="flex-1 text-center md:text-left">
+            <p className="text-xl font-black text-amber-900 tracking-tight">⚠️ Attendance Low — {attendancePercent}%</p>
+            <p className="text-sm font-medium text-amber-700 mt-1">You need 75% minimum. Attend more classes to avoid shortage.</p>
           </div>
-          <Link to="/student/attendance" className="btn-primary shrink-0 bg-amber-500 shadow-amber-200 hover:bg-amber-600">View Details</Link>
+          <Link to="/student/attendance" className="btn-primary shrink-0 bg-amber-500 shadow-amber-200 hover:bg-amber-600 w-full md:w-auto">View Details</Link>
         </div>
       )}
 
       {/* Status Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 stagger-children">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 stagger-children">
         {statusCards.map((card) => (
           <Link key={card.label} to={card.link}
-            className="bg-white rounded-2xl p-6 hover:shadow-lg transition-all duration-300 group cursor-pointer border border-gray-100 relative overflow-hidden active:scale-[0.98] card-hover">
-            <div className="flex items-center justify-between mb-5 relative z-10">
-              <div className={`w-12 h-12 rounded-2xl ${card.bgColor} flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                <card.icon className={`w-6 h-6 ${card.textColor}`} />
+            className="card-elegant p-6 sm:p-8 group cursor-pointer active:scale-[0.98]">
+            <div className="flex items-center justify-between mb-6 relative z-10">
+              <div className={`w-14 h-14 rounded-2xl ${card.bgColor} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-sm`}>
+                <card.icon className={`w-7 h-7 ${card.textColor}`} />
               </div>
-              <ArrowUpRight className="w-5 h-5 text-gray-300 group-hover:text-red-400 transition-all" />
+              <ArrowUpRight className="w-6 h-6 text-slate-300 group-hover:text-rose-500 transition-colors" />
             </div>
-            <p className="text-3xl font-black tracking-tight text-gray-900">{card.value}</p>
-            <p className="text-base font-bold text-gray-700 mt-1.5">{card.label}</p>
-            <p className="text-sm text-gray-400 mt-0.5">{card.desc}</p>
+            <p className="text-4xl sm:text-5xl font-black tracking-tighter text-slate-900">{card.value}</p>
+            <p className="text-base font-bold text-slate-700 mt-2">{card.label}</p>
+            <p className="text-sm font-medium text-slate-400 mt-1">{card.desc}</p>
           </Link>
         ))}
       </div>
 
       {/* Deadline Countdown + Attendance Risk */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Deadline Countdown */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-            <div className="flex items-center gap-2"><Zap className="w-5 h-5 text-red-400" /><h3 className="font-bold text-sm text-gray-700 uppercase tracking-wider">Deadline Countdown</h3></div>
-            <Link to="/student/assignments" className="text-xs font-bold text-red-500 hover:underline">View All</Link>
+        <div className="card-elegant overflow-hidden flex flex-col">
+          <div className="p-6 border-b border-slate-100/50 flex items-center justify-between bg-white/40">
+            <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-xl bg-rose-50 flex items-center justify-center"><Zap className="w-4 h-4 text-rose-500" /></div><h3 className="font-black text-xs text-slate-700 uppercase tracking-widest">Deadline Countdown</h3></div>
+            <Link to="/student/assignments" className="text-xs font-black tracking-widest uppercase text-rose-500 hover:text-rose-600 transition-colors">View All</Link>
           </div>
-          <div className="p-5 space-y-3">
+          <div className="p-6 sm:p-8 space-y-4 flex-1 bg-white/20">
             {deadlines.length > 0 ? deadlines.map(a => {
               const days = Math.ceil((new Date(a.dueDate) - new Date()) / (864e5));
               const urgency = days <= 2 ? 'border-red-200 bg-red-50' : days <= 5 ? 'border-amber-200 bg-amber-50' : 'border-green-200 bg-green-50';
@@ -167,12 +167,12 @@ export default function StudentDashboard() {
         </div>
 
         {/* Attendance Risk Predictor */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="p-5 border-b border-gray-100 flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-amber-400" />
-            <h3 className="font-bold text-sm text-gray-700 uppercase tracking-wider">Attendance Risk Predictor</h3>
+        <div className="card-elegant overflow-hidden flex flex-col">
+          <div className="p-6 border-b border-slate-100/50 flex items-center gap-3 bg-white/40">
+            <div className="w-8 h-8 rounded-xl bg-amber-50 flex items-center justify-center"><AlertTriangle className="w-4 h-4 text-amber-500" /></div>
+            <h3 className="font-black text-xs text-slate-700 uppercase tracking-widest">Attendance Risk Predictor</h3>
           </div>
-          <div className="p-5">
+          <div className="p-6 sm:p-8 flex-1 flex flex-col justify-center bg-white/20">
             {totalClasses > 0 ? (
               <>
                 {/* Current gauge */}
@@ -210,17 +210,17 @@ export default function StudentDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-7">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Announcements */}
-        <div className="lg:col-span-2 bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
-          <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center"><Megaphone className="w-5 h-5 text-red-500" /></div>
-              <div><h2 className="text-lg font-bold text-gray-800">Official Notices</h2><p className="text-sm text-gray-400">Latest updates</p></div>
+        <div className="lg:col-span-2 card-elegant overflow-hidden">
+          <div className="p-6 sm:p-8 border-b border-slate-100/50 flex items-center justify-between bg-white/40">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center"><Megaphone className="w-6 h-6 text-rose-500" /></div>
+              <div><h2 className="text-xl font-black text-slate-800 tracking-tight">Official Notices</h2><p className="text-sm font-medium text-slate-400">Latest updates from administration</p></div>
             </div>
-            <Link to="/student/announcements" className="px-4 py-2.5 rounded-xl bg-gray-50 text-sm font-bold text-gray-500 hover:bg-red-50 hover:text-red-500 transition-all">View All</Link>
+            <Link to="/student/announcements" className="px-5 py-3 rounded-2xl bg-white shadow-sm border border-slate-100 text-xs font-black tracking-widest uppercase text-slate-500 hover:text-rose-600 hover:border-rose-200 transition-all">View All</Link>
           </div>
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-slate-100/50 bg-white/20">
             {announcements.length > 0 ? announcements.slice(0,3).map((notice) => (
               <div key={notice.id} className="p-6 hover:bg-red-50/30 transition-all group">
                 <div className="flex items-center gap-3 mb-2">
@@ -235,14 +235,14 @@ export default function StudentDashboard() {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* Upcoming Events */}
-          <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
-            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-              <div className="flex items-center gap-2"><PartyPopper className="w-4 h-4 text-red-400" /><h3 className="font-bold text-sm text-gray-700 uppercase tracking-wider">Upcoming Events</h3></div>
-              <Link to="/student/events" className="text-xs font-bold text-red-500 hover:underline">All</Link>
+          <div className="card-elegant overflow-hidden">
+            <div className="p-6 border-b border-slate-100/50 flex items-center justify-between bg-white/40">
+              <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center"><PartyPopper className="w-4 h-4 text-indigo-500" /></div><h3 className="font-black text-xs text-slate-700 uppercase tracking-widest">Upcoming Events</h3></div>
+              <Link to="/student/events" className="text-xs font-black tracking-widest uppercase text-indigo-500 hover:text-indigo-600 transition-colors">All</Link>
             </div>
-            <div className="p-4 space-y-2">
+            <div className="p-6 space-y-3 bg-white/20">
               {upcomingEvents.length > 0 ? upcomingEvents.slice(0, 3).map(evt => {
                 const club = campusClubs.find(c => c.id === evt.club);
                 const days = Math.ceil((new Date(evt.date) - new Date()) / (864e5));
@@ -263,11 +263,11 @@ export default function StudentDashboard() {
           </div>
 
           {/* Live Monitor */}
-          <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
-            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-              <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" /><h3 className="font-bold text-sm text-gray-700 uppercase tracking-wider">Live Monitor</h3></div>
+          <div className="card-elegant overflow-hidden">
+            <div className="p-6 border-b border-slate-100/50 flex items-center justify-between bg-white/40">
+              <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center"><div className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" /></div><h3 className="font-black text-xs text-slate-700 uppercase tracking-widest">Live Monitor</h3></div>
             </div>
-            <div className="p-5 space-y-4">
+            <div className="p-6 space-y-6 bg-white/20">
               {crowdData.filter(z => ['canteen','library','stationery'].includes(z.id)).map((zone) => (
                 <div key={zone.id} className="space-y-2">
                   <div className="flex items-center justify-between">
@@ -286,10 +286,10 @@ export default function StudentDashboard() {
       </div>
 
       {/* Campus Polls */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="p-5 border-b border-gray-100 flex items-center gap-2">
-          <span className="text-lg">🗳️</span>
-          <h3 className="font-bold text-sm text-gray-700 uppercase tracking-wider">Campus Polls — Vote Now!</h3>
+      <div className="card-elegant overflow-hidden">
+        <div className="p-6 sm:p-8 border-b border-slate-100/50 flex items-center gap-4 bg-white/40">
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-2xl shadow-sm">🗳️</div>
+          <h3 className="font-black text-sm text-slate-800 uppercase tracking-widest">Campus Polls — Vote Now!</h3>
         </div>
         {(() => {
           const activeUnvotedPolls = polls.filter(p => p.active && pollVotes[p.id] === undefined);
@@ -323,9 +323,9 @@ export default function StudentDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
-        <h3 className="font-bold text-sm text-gray-700 uppercase tracking-wider mb-4 flex items-center gap-2"><Shield className="w-4 h-4 text-red-400" />Quick Actions</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="card-elegant p-6 sm:p-8">
+        <h3 className="font-black text-xs text-slate-700 uppercase tracking-widest mb-6 flex items-center gap-3"><div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center"><Shield className="w-4 h-4 text-slate-500" /></div>Quick Actions</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
           <Link to="/student/complaints" className="flex items-center gap-3 p-4 rounded-xl bg-red-50 border border-red-100 hover:bg-red-100/50 transition-all active:scale-95">
             <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center"><MessageSquareWarning className="w-5 h-5 text-red-500" /></div>
             <div><p className="text-sm font-bold text-gray-800">File Report</p><p className="text-[10px] text-gray-400">Ragging / Infra</p></div>
@@ -347,9 +347,9 @@ export default function StudentDashboard() {
 
       {/* Subjects Bar */}
       {mySubjects.length > 0 && (
-        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm animate-fade-in">
-          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><Calendar className="w-5 h-5 text-red-400" />Your Subjects — {user?.dept} Year {user?.year}</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="card-elegant p-6 sm:p-8 animate-fade-in">
+          <h3 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-3 tracking-tight"><div className="w-10 h-10 rounded-2xl bg-rose-50 flex items-center justify-center"><Calendar className="w-5 h-5 text-rose-500" /></div>Your Subjects — {user?.dept} Year {user?.year}</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             {mySubjects.map(s => (
               <div key={s.code} className="p-4 rounded-xl bg-gray-50 border border-gray-100 hover:bg-red-50 hover:border-red-100 transition-all">
                 <p className="text-xs font-bold text-red-500 font-mono">{s.code}</p>

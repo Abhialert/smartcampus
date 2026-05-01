@@ -37,24 +37,32 @@ function AppLayout({ children }) {
   const { isAuthenticated } = useAuth();
   if (!isAuthenticated) return children;
   return (
-    <div className="flex h-screen overflow-hidden flex-col bg-gradient-to-br from-white via-gray-50/50 to-red-50/20">
+    <div className="flex h-screen overflow-hidden flex-col bg-slate-50 relative selection:bg-rose-200 selection:text-rose-900">
+      {/* Elegant Ambient Background */}
+      <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-rose-50/80 to-transparent pointer-events-none" />
+      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-rose-100/50 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[20%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-50/50 blur-[100px] pointer-events-none" />
+
       <Navbar />
-      <div className="flex-1 overflow-y-auto flex flex-col relative">
-        <main className="flex-1 p-5 md:p-8 shrink-0">
+      <div className="flex-1 overflow-y-auto flex flex-col relative z-10 scroll-smooth">
+        <main className="flex-1 p-6 md:p-10 lg:p-12 max-w-[1600px] mx-auto w-full shrink-0 pb-32">
           {children}
         </main>
         
-        {/* Global Footer */}
-        <footer className="bg-red-700 text-white py-10 px-6 shrink-0 border-t-4 border-red-800 mt-auto">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+        {/* Elegant Footer */}
+        <footer className="bg-slate-900 text-slate-300 py-12 px-8 shrink-0 border-t border-slate-800 mt-auto">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
             <div className="text-center md:text-left">
-              <h3 className="font-bold text-xl mb-1 tracking-wide">Techno Main Salt Lake</h3>
-              <p className="text-red-200 text-sm font-medium">Empowering minds, shaping the future.</p>
+              <h3 className="font-black text-2xl mb-1 tracking-tight text-white flex items-center gap-2 justify-center md:justify-start">
+                <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center shadow-lg shadow-rose-500/20">✨</span>
+                Smart<span className="text-rose-500">Campus</span>
+              </h3>
+              <p className="text-slate-400 text-sm font-medium tracking-wide">Empowering minds, shaping the future.</p>
             </div>
-            <div className="flex flex-col items-center md:items-end gap-2 text-red-100 text-sm">
-              <span className="flex items-center gap-2"><span className="text-base">📍</span> EM-4, Sector V, Salt Lake, Kolkata - 700091</span>
-              <span className="flex items-center gap-2"><span className="text-base">📞</span> +91 33 2357 5683</span>
-              <span className="mt-3 text-xs text-red-300 font-medium">© {new Date().getFullYear()} All Rights Reserved.</span>
+            <div className="flex flex-col items-center md:items-end gap-3 text-sm font-medium">
+              <span className="flex items-center gap-2 hover:text-white transition-colors cursor-default"><span className="text-lg">📍</span> Techno Main Salt Lake, Kolkata</span>
+              <span className="flex items-center gap-2 hover:text-white transition-colors cursor-default"><span className="text-lg">📞</span> +91 33 2357 5683</span>
+              <span className="mt-4 text-xs text-slate-500 tracking-widest uppercase">© {new Date().getFullYear()} All Rights Reserved.</span>
             </div>
           </div>
         </footer>

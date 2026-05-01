@@ -259,27 +259,28 @@ export default function SkillTracker() {
   const totalScore = accounts.length > 0 ? (baseSkills.reduce((a, s) => a + s.score, 0) / baseSkills.length).toFixed(1) : '—';
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto pb-12">
+    <div className="space-y-12 max-w-7xl mx-auto pb-24">
       <div className="animate-fade-in">
-        <h1 className="text-3xl md:text-4xl font-black tracking-tight text-gray-900">Skill <span className="text-red-500">Radar</span> 🎯</h1>
-        <p className="text-gray-500 text-lg font-medium mt-2">100% real data — securely link your profiles to build authentic skill maps</p>
+        <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900">Skill <span className="text-rose-600">Radar</span> 🎯</h1>
+        <p className="text-slate-500 text-lg font-medium mt-3">100% real data — securely link your profiles to build authentic skill maps</p>
       </div>
 
       {/* Add Platform Section */}
-      <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-6 text-white shadow-xl">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3"><Link2 className="w-5 h-5 text-red-400" /><h3 className="font-bold text-lg">Linked Authentic Profiles</h3></div>
+      <div className="card-elegant overflow-hidden bg-slate-900 text-white shadow-2xl shadow-slate-900/20 border-slate-800">
+        <div className="p-6 sm:p-8">
+          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-2xl bg-slate-800 flex items-center justify-center"><Link2 className="w-5 h-5 text-rose-500" /></div><h3 className="font-black text-xl tracking-tight">Linked Authentic Profiles</h3></div>
           {availablePlatforms.length > 0 && !showAdd && !verificationStep && (
-            <button onClick={() => setShowAdd(true)} className="flex items-center gap-1.5 text-xs px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 font-bold transition-all">
-              <Plus className="w-3.5 h-3.5" /> Add Platform
+            <button onClick={() => setShowAdd(true)} className="flex items-center gap-2 text-xs px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-black tracking-widest uppercase transition-all shadow-sm">
+              <Plus className="w-4 h-4" /> Add Platform
             </button>
           )}
         </div>
 
         {accounts.length === 0 && !showAdd && !verificationStep && (
-          <div className="text-center py-6">
-            <p className="text-gray-400 text-sm mb-3">No platforms linked yet. Add your coding profiles to generate real skill data.</p>
-            <button onClick={() => setShowAdd(true)} className="px-5 py-2.5 rounded-xl bg-red-500 text-white text-sm font-bold hover:bg-red-600 active:scale-95">
+          <div className="text-center py-10 bg-slate-800/50 rounded-3xl border border-slate-700/50">
+            <p className="text-slate-400 text-base font-medium mb-5">No platforms linked yet. Add your coding profiles to generate real skill data.</p>
+            <button onClick={() => setShowAdd(true)} className="px-6 py-3.5 rounded-2xl bg-rose-600 text-white text-sm font-black hover:bg-rose-500 active:scale-95 shadow-[0_8px_20px_-4px_rgba(225,29,72,0.4)]">
               + Link Your First Platform
             </button>
           </div>
@@ -361,113 +362,120 @@ export default function SkillTracker() {
 
         {/* Linked Platform Cards */}
         {accounts.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {accounts.map(acc => {
               const def = platformDefs.find(p => p.id === acc.platform);
               const st = stats[acc.platform];
               const isLoading = loading[acc.platform];
               const err = errors[acc.platform];
               return (
-                <div key={acc.platform} className="bg-white/5 rounded-xl p-4 border border-white/10 relative group">
-                  <button onClick={() => removeAccount(acc.platform)} className="absolute top-2 right-2 p-1 rounded-lg hover:bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-3.5 h-3.5 text-gray-500" /></button>
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-xl">{def?.emoji}</span>
-                    <span className="font-bold text-sm">{def?.name}</span>
-                    {isLoading && <Loader2 className="w-4 h-4 animate-spin text-gray-400" />}
-                    {st && !isLoading && <CheckCircle className="w-4 h-4 text-green-400" />}
-                    {st && !isLoading && <span className="ml-auto text-[9px] bg-green-500/20 text-green-400 px-2 py-1 rounded font-bold uppercase tracking-wider">Verified</span>}
+                <div key={acc.platform} className="bg-slate-800/80 rounded-3xl p-6 border border-slate-700/50 relative group transition-all hover:bg-slate-800 shadow-sm">
+                  <button onClick={() => removeAccount(acc.platform)} className="absolute top-4 right-4 p-1.5 rounded-xl bg-slate-900/50 hover:bg-rose-500/20 opacity-0 group-hover:opacity-100 transition-all"><X className="w-4 h-4 text-slate-400 hover:text-rose-400" /></button>
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="text-2xl drop-shadow-sm">{def?.emoji}</span>
+                    <span className="font-black tracking-wide text-base">{def?.name}</span>
+                    {isLoading && <Loader2 className="w-4 h-4 animate-spin text-slate-400 ml-auto" />}
+                    {st && !isLoading && <CheckCircle className="w-4 h-4 text-emerald-400" />}
+                    {st && !isLoading && <span className="ml-auto text-[10px] bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-md font-black uppercase tracking-widest border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]">Verified</span>}
                   </div>
-                  {err && <p className="text-xs text-red-400 mb-2">{err}</p>}
+                  {err && <p className="text-xs text-rose-400 mb-3 bg-rose-400/10 p-2 rounded-lg">{err}</p>}
                   {st && acc.platform === 'leetcode' && (
-                    <div className="space-y-1.5">
-                      <div className="flex justify-between text-sm"><span className="text-gray-400">Total Solved</span><span className="font-black">{st.totalSolved}</span></div>
-                      <div className="flex gap-2 text-[10px] font-bold">
-                        <span className="px-2 py-0.5 rounded bg-green-500/20 text-green-400">E {st.easySolved}</span>
-                        <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400">M {st.mediumSolved}</span>
-                        <span className="px-2 py-0.5 rounded bg-red-500/20 text-red-400">H {st.hardSolved}</span>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm"><span className="text-slate-400">Total Solved</span><span className="font-black text-lg">{st.totalSolved}</span></div>
+                      <div className="flex gap-2 text-[10px] font-black tracking-widest uppercase">
+                        <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">E {st.easySolved}</span>
+                        <span className="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">M {st.mediumSolved}</span>
+                        <span className="px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-400 border border-rose-500/20">H {st.hardSolved}</span>
                       </div>
-                      <div className="flex justify-between text-xs"><span className="text-gray-500">Ranking</span><span className="text-gray-300">#{st.ranking?.toLocaleString()}</span></div>
+                      <div className="flex justify-between text-xs mt-2"><span className="text-slate-500 font-medium">Ranking</span><span className="text-slate-300 font-bold">#{st.ranking?.toLocaleString()}</span></div>
                     </div>
                   )}
                   {st && acc.platform === 'codeforces' && (
-                    <div className="space-y-1.5">
-                      <div className="flex justify-between text-sm"><span className="text-gray-400">Rating</span><span className="font-black">{st.rating}</span></div>
-                      <div className="flex justify-between text-xs"><span className="text-gray-500">Max</span><span className="text-gray-300">{st.maxRating}</span></div>
-                      <div className="flex justify-between text-xs"><span className="text-gray-500">Rank</span><span className="text-gray-300 capitalize">{st.rank}</span></div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm"><span className="text-slate-400">Rating</span><span className="font-black text-lg">{st.rating}</span></div>
+                      <div className="flex justify-between text-xs"><span className="text-slate-500 font-medium">Max</span><span className="text-slate-300 font-bold">{st.maxRating}</span></div>
+                      <div className="flex justify-between text-xs"><span className="text-slate-500 font-medium">Rank</span><span className="text-slate-300 capitalize font-bold">{st.rank}</span></div>
                     </div>
                   )}
                   {st && acc.platform === 'github' && (
-                    <div className="space-y-1.5">
-                      {st.avatar && <div className="flex items-center gap-2 mb-1"><img src={st.avatar} className="w-6 h-6 rounded-full" /><span className="text-xs text-gray-300 font-bold">{st.name}</span></div>}
-                      <div className="flex justify-between text-sm"><span className="text-gray-400">Repos</span><span className="font-black">{st.repos}</span></div>
-                      <div className="flex justify-between text-xs"><span className="text-gray-500">Followers</span><span className="text-gray-300">{st.followers}</span></div>
+                    <div className="space-y-2">
+                      {st.avatar && <div className="flex items-center gap-3 mb-2 bg-slate-900/50 p-2 rounded-xl border border-slate-700/50"><img src={st.avatar} className="w-8 h-8 rounded-lg" /><span className="text-sm text-slate-200 font-black tracking-wide truncate">{st.name}</span></div>}
+                      <div className="flex justify-between text-sm"><span className="text-slate-400">Repos</span><span className="font-black text-lg">{st.repos}</span></div>
+                      <div className="flex justify-between text-xs"><span className="text-slate-500 font-medium">Followers</span><span className="text-slate-300 font-bold">{st.followers}</span></div>
                     </div>
                   )}
                   {st && acc.platform === 'codechef' && (
-                    <div className="space-y-1.5">
-                      <div className="flex justify-between text-sm"><span className="text-gray-400">Rating</span><span className="font-black">{st.rating}</span></div>
-                      <div className="flex justify-between text-xs"><span className="text-gray-500">Stars</span><span className="text-gray-300">{st.stars}⭐</span></div>
-                      <div className="flex justify-between text-xs"><span className="text-gray-500">Solved</span><span className="text-gray-300">{st.solved}</span></div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm"><span className="text-slate-400">Rating</span><span className="font-black text-lg">{st.rating}</span></div>
+                      <div className="flex justify-between text-xs"><span className="text-slate-500 font-medium">Stars</span><span className="text-slate-300 font-bold">{st.stars}⭐</span></div>
+                      <div className="flex justify-between text-xs"><span className="text-slate-500 font-medium">Solved</span><span className="text-slate-300 font-bold">{st.solved}</span></div>
                     </div>
                   )}
                   {st && acc.platform === 'gfg' && (
-                    <div className="space-y-1.5">
-                      <div className="flex justify-between text-sm"><span className="text-gray-400">Solved</span><span className="font-black">{st.solved}</span></div>
-                      <div className="flex justify-between text-xs"><span className="text-gray-500">Score</span><span className="text-gray-300">{st.score}</span></div>
-                      {st.streak > 0 && <div className="flex justify-between text-xs"><span className="text-gray-500">Streak</span><span className="text-gray-300">🔥 {st.streak}d</span></div>}
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm"><span className="text-slate-400">Solved</span><span className="font-black text-lg">{st.solved}</span></div>
+                      <div className="flex justify-between text-xs"><span className="text-slate-500 font-medium">Score</span><span className="text-slate-300 font-bold">{st.score}</span></div>
+                      {st.streak > 0 && <div className="flex justify-between text-xs"><span className="text-slate-500 font-medium">Streak</span><span className="text-amber-400 font-bold drop-shadow-sm">🔥 {st.streak}d</span></div>}
                     </div>
                   )}
-                  {!st && !isLoading && !err && <p className="text-xs text-gray-500">@{acc.username}</p>}
-                  <a href={`${def?.urlPrefix}${acc.username}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[10px] text-red-400 hover:text-red-300 font-bold mt-2">View Profile <ExternalLink className="w-3 h-3" /></a>
+                  {!st && !isLoading && !err && <p className="text-xs text-slate-500 mt-2">@{acc.username}</p>}
+                  <a href={`${def?.urlPrefix}${acc.username}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[10px] text-rose-400 hover:text-rose-300 font-black uppercase tracking-widest mt-4 bg-rose-400/10 px-3 py-1.5 rounded-lg transition-colors">View Profile <ExternalLink className="w-3 h-3" /></a>
                 </div>
               );
             })}
           </div>
         )}
+        </div>
       </div>
 
       {/* Computed Skills from Real Data */}
       {accounts.length > 0 && (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div className="bg-white rounded-2xl p-5 border border-gray-100 text-center"><p className="text-3xl font-black text-gray-900">{totalScore}</p><p className="text-xs font-bold text-gray-400 uppercase mt-1">Avg Skill Score</p></div>
-            <div className="bg-white rounded-2xl p-5 border border-gray-100 text-center"><p className="text-3xl font-black text-gray-900">{accounts.length}</p><p className="text-xs font-bold text-gray-400 uppercase mt-1">Platforms Linked</p></div>
-            <div className="bg-white rounded-2xl p-5 border border-gray-100 text-center"><p className="text-3xl font-black text-gray-900">{allSkills.filter(s=>s.score>0).length}</p><p className="text-xs font-bold text-gray-400 uppercase mt-1">Skills Tracked</p></div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-6 lg:gap-8">
+            <div className="card-elegant p-8 text-center flex flex-col justify-center"><p className="text-5xl font-black text-slate-900 tracking-tighter">{totalScore}</p><p className="text-xs font-black text-slate-400 uppercase tracking-widest mt-2">Avg Skill Score</p></div>
+            <div className="card-elegant p-8 text-center flex flex-col justify-center"><p className="text-5xl font-black text-slate-900 tracking-tighter">{accounts.length}</p><p className="text-xs font-black text-slate-400 uppercase tracking-widest mt-2">Platforms Linked</p></div>
+            <div className="card-elegant p-8 text-center flex flex-col justify-center"><p className="text-5xl font-black text-slate-900 tracking-tighter">{allSkills.filter(s=>s.score>0).length}</p><p className="text-xs font-black text-slate-400 uppercase tracking-widest mt-2">Skills Tracked</p></div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-7">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Radar Chart */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-              <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 flex items-center gap-2"><Target className="w-4 h-4 text-red-400" />Skill Radar (Auto-Computed from Tags)</h3>
+            <div className="card-elegant p-8">
+              <h3 className="text-xs font-black text-slate-700 uppercase tracking-widest mb-8 flex items-center gap-3"><div className="w-8 h-8 rounded-xl bg-rose-50 flex items-center justify-center"><Target className="w-4 h-4 text-rose-500" /></div>Skill Radar (Auto-Computed)</h3>
               <div className="flex justify-center">
-                <svg viewBox="0 0 300 300" className="w-full max-w-[320px]">
-                  {gridLevels.map(level => { const pts = baseSkills.map((_, i) => getPoint(i, level)); const path = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ') + 'Z'; return <path key={level} d={path} fill="none" stroke="#e5e7eb" strokeWidth="1" />; })}
-                  {baseSkills.map((_, i) => { const p = getPoint(i, 10); return <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="#f3f4f6" strokeWidth="1" />; })}
-                  <path d={radarPath} fill="rgba(239,68,68,0.15)" stroke="#ef4444" strokeWidth="2.5" />
-                  {radarPoints.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="5" fill="#ef4444" stroke="white" strokeWidth="2" />)}
-                  {baseSkills.map((s, i) => { const p = getPoint(i, 12.5); return <text key={i} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle" className="text-[9px] font-bold fill-gray-500">{s.name}</text>; })}
+                <svg viewBox="0 0 300 300" className="w-full max-w-[340px] drop-shadow-xl">
+                  {gridLevels.map(level => { const pts = baseSkills.map((_, i) => getPoint(i, level)); const path = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ') + 'Z'; return <path key={level} d={path} fill="none" stroke="#e2e8f0" strokeWidth="1.5" strokeDasharray="4 4" />; })}
+                  {baseSkills.map((_, i) => { const p = getPoint(i, 10); return <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="#e2e8f0" strokeWidth="1.5" />; })}
+                  <path d={radarPath} fill="url(#radarGradient)" stroke="#e11d48" strokeWidth="3" style={{ filter: 'drop-shadow(0 0 10px rgba(225, 29, 72, 0.4))' }} />
+                  <defs>
+                    <linearGradient id="radarGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="rgba(225,29,72,0.3)" />
+                      <stop offset="100%" stopColor="rgba(225,29,72,0.05)" />
+                    </linearGradient>
+                  </defs>
+                  {radarPoints.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="5" fill="#e11d48" stroke="white" strokeWidth="2.5" />)}
+                  {baseSkills.map((s, i) => { const p = getPoint(i, 12.5); return <text key={i} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle" className="text-[10px] font-black uppercase tracking-wider fill-slate-500">{s.name}</text>; })}
                 </svg>
               </div>
             </div>
 
             {/* Skill Breakdown */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-              <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 flex items-center gap-2"><Trophy className="w-4 h-4 text-red-400" />Real Skill Breakdown</h3>
-              <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+            <div className="card-elegant p-8 flex flex-col">
+              <h3 className="text-xs font-black text-slate-700 uppercase tracking-widest mb-6 flex items-center gap-3"><div className="w-8 h-8 rounded-xl bg-amber-50 flex items-center justify-center"><Trophy className="w-4 h-4 text-amber-500" /></div>Real Skill Breakdown</h3>
+              <div className="space-y-4 flex-1 overflow-y-auto pr-2 max-h-[340px] hide-scrollbar">
                 {allSkills.filter(s=>s.score > 0).map(skill => (
-                  <div key={skill.name} className="p-3 rounded-xl bg-gray-50 border border-gray-100">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-bold text-gray-800">{skill.name}</span>
-                      <span className="text-lg font-black text-gray-900">{skill.score}/10</span>
+                  <div key={skill.name} className="p-4 rounded-2xl bg-white/40 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm font-black text-slate-800 tracking-wide">{skill.name}</span>
+                      <span className="text-xl font-black text-slate-900 tracking-tighter">{skill.score}/10</span>
                     </div>
-                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden mb-1.5">
-                      <div className="h-full rounded-full transition-all duration-700" style={{ width: `${skill.score * 10}%`, backgroundColor: skill.score >= 7 ? '#22c55e' : skill.score >= 4 ? '#f59e0b' : '#ef4444' }} />
+                    <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden mb-2 shadow-inner">
+                      <div className="h-full rounded-full transition-all duration-700 shadow-sm" style={{ width: `${skill.score * 10}%`, background: skill.score >= 7 ? 'linear-gradient(90deg, #34d399, #10b981)' : skill.score >= 4 ? 'linear-gradient(90deg, #fbbf24, #f59e0b)' : 'linear-gradient(90deg, #fb7185, #e11d48)' }} />
                     </div>
-                    <p className="text-[10px] text-gray-400 font-medium">via {skill.source} — {skill.detail}</p>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">via {skill.source} <span className="mx-1">•</span> <span className="text-slate-400">{skill.detail}</span></p>
                   </div>
                 ))}
                 {allSkills.filter(s=>s.score === 0).length === allSkills.length && (
-                  <div className="p-5 text-center text-gray-400 text-sm font-medium">Link platforms above to see your skills breakdown!</div>
+                  <div className="p-8 text-center text-slate-400 text-sm font-bold bg-white/30 rounded-2xl border border-slate-100">Link platforms above to see your skills breakdown!</div>
                 )}
               </div>
             </div>
@@ -476,17 +484,19 @@ export default function SkillTracker() {
       )}
 
       {accounts.length > 0 && Object.keys(stats).length === 0 && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-red-400 mx-auto mb-3" />
-          <p className="font-bold text-gray-500">Fetching your actual stats and tags...</p>
+        <div className="card-elegant p-16 text-center">
+          <Loader2 className="w-10 h-10 animate-spin text-rose-500 mx-auto mb-4 drop-shadow-sm" />
+          <p className="font-black text-slate-600 tracking-wide">Fetching your actual stats and tags...</p>
         </div>
       )}
 
       {accounts.length === 0 && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
-          <p className="text-5xl mb-4">🎯</p>
-          <p className="text-lg font-bold text-gray-400">Link your coding profiles above to see your real skill map</p>
-          <p className="text-sm text-gray-300 mt-2">Requires ownership verification via Profile Token</p>
+        <div className="card-elegant p-16 text-center flex flex-col items-center justify-center min-h-[300px]">
+          <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mb-6 shadow-sm border border-rose-100">
+            <Target className="w-10 h-10 text-rose-400" />
+          </div>
+          <p className="text-xl font-black text-slate-800 tracking-tight">Link your coding profiles above to see your real skill map</p>
+          <p className="text-sm font-medium text-slate-500 mt-3">Requires ownership verification via Profile Token</p>
         </div>
       )}
     </div>
